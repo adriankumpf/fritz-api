@@ -29,20 +29,19 @@ defmodule Fritzapi.DeviceListInfos do
 
   defp device_list_struct do
     [
-      functionbitmask: ~x"./@functionbitmask"i,
       fwversion: ~x"./@fwversion"s,
       id: ~x"./@id"i,
       identifier: ~x"./@identifier"s,
       manufacturer: ~x"./@manufacturer"s,
       productname: ~x"./@productname"s,
-      present: ~x"./present/text()"i |> transform_by(& &1 === 1),
+      present: ~x"./present/text()"i |> transform_by(&parse_boolean/1),
       name: ~x"./name/text()"s,
       switch: [
         ~x"./switch"o,
-        state: ~x"./state/text()"i |> transform_by(& &1 === 1),
+        state: ~x"./state/text()"i |> transform_by(&parse_boolean/1),
         mode: ~x"./mode/text()"s,
-        lock: ~x"./lock/text()"i |> transform_by(& &1 === 1),
-        devicelock: ~x"./devicelock/text()"i |> transform_by(& &1 === 1),
+        lock: ~x"./lock/text()"i |> transform_by(&parse_boolean/1),
+        devicelock: ~x"./devicelock/text()"i |> transform_by(&parse_boolean/1),
       ],
       powermeter: [
         ~x"./powermeter"o,
@@ -56,10 +55,13 @@ defmodule Fritzapi.DeviceListInfos do
       ],
       alert: [
         ~x"./alert"o,
-        state: ~x"./state/text()"i |> transform_by(& &1 === 1),
+        state: ~x"./state/text()"i |> transform_by(&parse_boolean/1),
       ]
     ]
   end
+
+  defp parse_boolean(0), do: false
+  defp parse_boolean(1), do: true
 
   defp parse_float("0", _) do
     0
