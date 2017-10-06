@@ -19,7 +19,8 @@ defmodule Fritzapi.Mixfile do
 
   defp deps do
     [
-      {:httpoison, "~> 0.13"}
+      {:httpoison, "~> 0.13"},
+      {:sweet_xml, "~> 0.6.5"}
     ]
   end
 end
