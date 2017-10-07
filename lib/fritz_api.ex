@@ -1,35 +1,31 @@
-defmodule Fritzapi do
+defmodule FritzApi do
   @moduledoc """
-  Documentation for Fritzapi.
+  API Client for the Fritz!Box Home Automation HTTP Interface
   """
 
-  alias Fritzapi.{FritzBox, Helper, DeviceListInfos}
+  alias FritzApi.{FritzBox, Helper, DeviceListInfos}
 
   @path "/webservices/homeautoswitch.lua"
 
   @doc """
-  Get the session id which is required by all other commands.
+  Get a session ID.
 
-  Dabei sollte ein Programm zu jeder FRITZ!Box jeweils nur eine Sess ion-ID
-  verwenden, da die Anzahl der Sessions zu einer FRITZ!Box beschränkt ist.
+  A valid session ID is required in order to interact with the FritzBox API.
 
-  Grundsätzlich können alle dynamisch generierten Seiten nur mit einer
-  gültigen Session-ID aufgerufen werden.
+  Each application should only acquire a single session ID since the number of
+  sessions to a FritzBox is limited.
 
-  Die Session-ID hat nach Vergabe eine Gültigkeit von 60 Minuten. Die
-  Gültigkeitsdauer verlängert sich automatisch bei aktivem Zugriff auf die
-  FRITZ!Box.
-
-  However, Versucht eine Anwendung ohne od er mit einer ungültigen Session-ID
-  auf die FRITZ!Box zuzugreifen, werden alle aktiven Si tzungen aus
-  Sicherheitsgründen beendet.
+  In principle, each session ID has a validity of 60 Minutes whereby the
+  validity period gets extended with every access to the API. However, if any
+  application tries to access the API with an invalid session ID, all other
+  sessions get terminated.
   """
   def get_session_id(username, password, opts \\ []) do
-    Fritzapi.SessionId.fetch(username, password, opts)
+    FritzApi.SessionId.fetch(username, password, opts)
   end
 
   @doc """
-  Liefert die grundlegenden Informationen aller SmartHome-Geräte
+  Get essential information of all smart home devices.
   """
   def get_device_list_infos(sid, opts \\ []) do
     resp = FritzBox.get(@path, [sid: sid, switchcmd: "getdevicelistinfos"], opts)
@@ -41,7 +37,7 @@ defmodule Fritzapi do
   end
 
   @doc """
-  Liefert die kommaseparierte AIN/MAC Liste aller bekannten Steckdosen
+  Get the actuator identification numbers (AIN) of all known switches.
   """
   def get_switch_list(sid, opts \\ []) do
      resp = FritzBox.get(@path, %{sid: sid, switchcmd: "getswitchlist"}, opts)
@@ -54,7 +50,7 @@ defmodule Fritzapi do
   end
 
   @doc """
-  Schaltet Steckdose ein
+  Turn on the switch.
   """
   def set_switch_on(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "setswitchon"}, opts)
@@ -66,7 +62,7 @@ defmodule Fritzapi do
   end
 
   @doc """
-  Schaltet Steckdose aus
+  Turn off the switch.
   """
   def set_switch_off(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "setswitchoff"}, opts)
@@ -78,7 +74,7 @@ defmodule Fritzapi do
   end
 
   @doc """
-  Toggeln der Steckdose ein/aus
+  Toggle the switch.
   """
   def set_switch_toggle(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "setswitchtoggle"}, opts)
@@ -91,7 +87,7 @@ defmodule Fritzapi do
   end
 
   @doc """
-  Ermittelt Schaltzustand der Steckdose
+  Get the current state of the switch.
   """
   def get_switch_state(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "getswitchstate"}, opts)
@@ -105,7 +101,7 @@ defmodule Fritzapi do
   end
 
   @doc """
-  Ermittelt Verbindungsstatus des Aktors
+  Get the current connection state of the actor.
   """
   def get_switch_present(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "getswitchpresent"}, opts)
@@ -118,8 +114,7 @@ defmodule Fritzapi do
   end
 
   @doc """
-  Ermittelt aktuell über die Steckdose entnommene Leistung
-  Leistung in W
+  Get the current power consumption (Watt) of the switch.
   """
   def get_switch_power(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "getswitchpower"}, opts)
@@ -132,9 +127,7 @@ defmodule Fritzapi do
   end
 
   @doc """
-  Liefert die über die Steckdose entnommene Ernergiemenge seit Erstinbetriebnahme
-  oder Zurücksetzen der Energiestatistik
-  Energiemenge in kWh
+  Get the total energy usage (kWh) of the switch.
   """
   def get_switch_energy(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "getswitchenergy"}, opts)
@@ -147,7 +140,7 @@ defmodule Fritzapi do
   end
 
   @doc """
-  Liefert Bezeichner des Aktors
+  Get the name of the actor.
   """
   def get_switch_name(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "getswitchname"}, opts)
@@ -159,8 +152,7 @@ defmodule Fritzapi do
   end
 
   @doc """
-  Letzte Temperaturinformation des Aktors
-  Temperture in Celsius
+  Get the last measured temperature (Celsius) of the actor.
   """
   def get_temperature(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "gettemperature"}, opts)

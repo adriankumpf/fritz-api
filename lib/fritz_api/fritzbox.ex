@@ -1,6 +1,7 @@
-defmodule Fritzapi.FritzBox do
+defmodule FritzApi.FritzBox do
+  @moduledoc false
+
   alias HTTPoison.{Response, Error}
-  alias Fritzapi.Params
 
   @base "http://fritz.box"
 

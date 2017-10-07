@@ -1,11 +1,9 @@
-defmodule Fritzapi.DeviceListInfos do
-  @moduledoc """
-  Implemented according to https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/AHA-HTTP-Interface.pdf
-  """
+defmodule FritzApi.DeviceListInfos do
+  @moduledoc false
 
   import SweetXml
 
-  alias Fritzapi.Helper
+  alias FritzApi.Helper
 
   def parse_device_list(xml) do
     xml

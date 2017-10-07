@@ -1,6 +1,6 @@
-# Fritzapi
+# FritzApi
 
-**TODO: Add description**
+API Client for the Fritz!Box Home Automation HTTP Interface.
 
 ## Installation
 

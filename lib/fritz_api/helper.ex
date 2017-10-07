@@ -1,4 +1,5 @@
-defmodule Fritzapi.Helper do
+defmodule FritzApi.Helper do
+  @moduledoc false
 
   def md5(data) do
     data

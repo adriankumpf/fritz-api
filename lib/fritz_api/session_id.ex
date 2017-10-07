@@ -1,9 +1,7 @@
-defmodule Fritzapi.SessionId do
-  @moduledoc """
-  Implemented according to https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/AVM_Technical_Note_-_Session_ID.pdf
-  """
+defmodule FritzApi.SessionId do
+  @moduledoc false
 
-  alias Fritzapi.{FritzBox, Helper}
+  alias FritzApi.{FritzBox, Helper}
 
   @zero_sid "0000000000000000"
 

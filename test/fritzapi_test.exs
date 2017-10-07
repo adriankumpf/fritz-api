@@ -1,6 +1,6 @@
-defmodule FritzapiTest do
+defmodule FritzApiTest do
   use ExUnit.Case
-  doctest Fritzapi
+  doctest FritzApi
 
   test "greets the world" do
     assert true
