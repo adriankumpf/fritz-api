@@ -46,7 +46,7 @@ defmodule Fritzapi.DeviceListInfos do
       powermeter: [
         ~x"./powermeter"o,
         power: ~x"./power/text()"s |> transform_by(&Helper.parse_float(&1, 3)),
-        energy: ~x"./energy/text()"s |> transform_by(&Helper.parse_float(&1, 1))
+        energy: ~x"./energy/text()"s |> transform_by(&Helper.parse_float(&1, 3))
       ],
       temperature: [
         ~x"./temperature"o,
