@@ -1,33 +1,33 @@
 defmodule Fritzapi.DeviceListInfos do
   @moduledoc """
-  According to https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/AHA-HTTP-Interface.pdf
-
-  TODO: Heizkörperregler
+  Implemented according to https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/AHA-HTTP-Interface.pdf
   """
 
   import SweetXml
 
-  alias Fritzapi.{FritzBox, Options, Helper}
+  alias Fritzapi.{FritzBox, Helper, Params}
 
   @path "/webservices/homeautoswitch.lua"
+  @cmd "getdevicelistinfos"
 
-  def fetch(sid, %Options{base: base}) do
-    qs = URI.encode_query(%{sid: sid, switchcmd: "getdevicelistinfos"})
-
-    {:ok, devicelist_xml} = FritzBox.get(@path <> "?" <> qs , base)
+  def fetch(sid, opts) do
+    {:ok, devicelist_xml} =
+      FritzBox.get(@path, %Params{sid: sid, switchcmd: @cmd}, opts)
 
     devicelist_xml
-    |> xpath( ~x"/devicelist/device"l, device_list_struct() )
-    |> Enum.map(&remove_optionals/1)
+    |> parse_xml
+    |> remove_empty_functions
   end
 
-  defp remove_optionals(device) do
-    device
-    |> Enum.filter(fn {_, v} -> v != nil end)
-    |> Enum.into(%{})
+  defp parse_xml(xml_string) do
+    xpath(xml_string, ~x"/devicelist/device"l, device_list_schema())
   end
 
-  defp device_list_struct do
+  defp remove_empty_functions(device_list) do
+    Enum.map(device_list, &Helper.remove_nil_values/1)
+  end
+
+  defp device_list_schema do
     [
       fwversion: ~x"./@fwversion"s,
       id: ~x"./@id"i,
@@ -45,18 +45,23 @@ defmodule Fritzapi.DeviceListInfos do
       ],
       powermeter: [
         ~x"./powermeter"o,
-        power: ~x"./power/text()"s |> transform_by(& Helper.parse_float(&1, 3)),
-        energy: ~x"./energy/text()"s |> transform_by(& Helper.parse_float(&1, 1))
+        power: ~x"./power/text()"s |> transform_by(&Helper.parse_float(&1, 3)),
+        energy: ~x"./energy/text()"s |> transform_by(&Helper.parse_float(&1, 1))
       ],
       temperature: [
         ~x"./temperature"o,
-        celsius: ~x"./celsius/text()"s |> transform_by(& Helper.parse_float(&1, 1)),
-        offset: ~x"./offset/text()"s |> transform_by(& Helper.parse_float(&1, 1)),
+        celsius: ~x"./celsius/text()"s |> transform_by(&Helper.parse_float(&1, 1)),
+        offset: ~x"./offset/text()"s |> transform_by(&Helper.parse_float(&1, 1)),
       ],
       alert: [
         ~x"./alert"o,
         state: ~x"./state/text()"i |> transform_by(&Helper.parse_boolean/1),
-      ]
+      ],
+      # TODO Heizkörperregler
+      #
+      # hkr: [
+      #   ~x"./hkr"o,
+      # ]
     ]
   end
 end

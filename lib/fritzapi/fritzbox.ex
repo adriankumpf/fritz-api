@@ -1,7 +1,11 @@
 defmodule Fritzapi.FritzBox do
   alias HTTPoison.{Response, Error}
+  alias Fritzapi.{Options, Params}
 
-  def get(path, base) do
+  def get(path, %Params{} = params, %Options{} = opts) do
+    get(path <> "?" <> Params.encode(params), opts)
+  end
+  def get(path, %Options{base: base}) do
     (base <> path)
     |> HTTPoison.get
     |> parse_response
@@ -20,8 +24,10 @@ defmodule Fritzapi.FritzBox do
     {:error, :bad_request}
   defp parse_response({:ok, %Response{status_code: 403}}), do:
     {:error, :forbidden}
-  defp parse_response({:ok, %Response{status_code: 404}}), do:
-    {:error, :not_found}
+  defp parse_response({:ok, %Response{status_code: 500}}), do:
+    {:error, :server_error}
+  defp parse_response({:ok, %Response{status_code: sc}}), do:
+    {:error, {:status_code, sc}}
   defp parse_response({:error, %Error{reason: reason}}), do:
     {:error, reason}
 end
