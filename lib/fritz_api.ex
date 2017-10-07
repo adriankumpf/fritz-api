@@ -25,6 +25,12 @@ defmodule FritzApi do
   validity period gets extended with every access to the API. However, if any
   application tries to access the API with an invalid session ID, all other
   sessions get terminated.
+
+  ## Example
+
+      iex> FritzApi.get_session_id("admin", "changeme")
+      {:ok, "879b972027084f61"}
+
   """
   @spec get_session_id(String.t, String.t, opts) :: {:error, any} | {:ok, String.t}
   def get_session_id(username, password, opts \\ []) do
@@ -33,6 +39,31 @@ defmodule FritzApi do
 
   @doc """
   Get essential information of all smart home devices.
+
+  ## Example
+
+      iex> FritzApi.get_device_list_infos(sid)
+      {:ok, [%{
+        ain: "687690315761",
+        fwversion: "03.87",
+        id: 21,
+        manufacturer: "AVM",
+        name: "FRITZ!DECT #1",
+        powermeter: %{energy: 0.475, power: 0.0},
+        present: true,
+        productname: "FRITZ!DECT 200",
+        switch: %{
+          devicelock: false,
+          lock: false,
+          mode: "manuell",
+          state: false
+        },
+        temperature: %{
+          celsius: 23.5,
+          offset: 0.0
+        }
+      }]}
+
   """
   @spec get_device_list_infos(String.t, opts) :: {:error, any} | {:ok, DeviceListInfos.t}
   def get_device_list_infos(sid, opts \\ []) do
@@ -48,6 +79,12 @@ defmodule FritzApi do
 
   @doc """
   Get the actuator identification numbers (AIN) of all known switches.
+
+  ## Example
+
+      iex> FritzApi.get_switch_list(sid, opts)
+      {:ok, ["687690315761"]}
+
   """
   @spec get_switch_list(String.t, opts) :: {:error, any} | {:ok, [String.t]}
   def get_switch_list(sid, opts \\ []) do
@@ -62,6 +99,12 @@ defmodule FritzApi do
 
   @doc """
   Turn on the switch.
+
+  ## Example
+
+      iex> FritzApi.set_switch_on(sid, "687690315761")
+      :ok
+
   """
   @spec set_switch_on(String.t, String.t, opts) :: {:error, any} | :ok
   def set_switch_on(sid, ain, opts \\ []) do
@@ -75,6 +118,12 @@ defmodule FritzApi do
 
   @doc """
   Turn off the switch.
+
+  ## Example
+
+      iex> FritzApi.set_switch_off(sid, "687690315761")
+      :ok
+
   """
   @spec set_switch_off(String.t, String.t, opts) :: {:error, any} | :ok
   def set_switch_off(sid, ain, opts \\ []) do
@@ -88,6 +137,12 @@ defmodule FritzApi do
 
   @doc """
   Toggle the switch.
+
+  ## Example
+
+      iex> FritzApi.set_switch_toggle(sid, "687690315761")
+      {:ok, :off}
+
   """
   @spec set_switch_toggle(String.t, String.t, opts) :: {:error, any} | {:ok, :on} | {:ok, :off}
   def set_switch_toggle(sid, ain, opts \\ []) do
@@ -102,6 +157,12 @@ defmodule FritzApi do
 
   @doc """
   Get the current state of the switch.
+
+  ## Example
+
+      iex> FritzApi.get_switch_state(sid, "687690315761")
+      {:ok, :off}
+
   """
   @spec get_switch_state(String.t, String.t, opts) :: {:error, any} | {:ok, :on} | {:ok, :off}
   def get_switch_state(sid, ain, opts \\ []) do
@@ -117,6 +178,12 @@ defmodule FritzApi do
 
   @doc """
   Get the current connection state of the actor.
+
+  ## Example
+
+      iex> FritzApi.get_switch_present(sid, "687690315761")
+      {:ok, :connected}
+
   """
   @spec get_switch_present(String.t, String.t, opts) :: {:error, any} | {:ok, :connected} | {:ok, :not_connected}
   def get_switch_present(sid, ain, opts \\ []) do
@@ -131,6 +198,12 @@ defmodule FritzApi do
 
   @doc """
   Get the current power consumption (Watt) of the switch.
+
+  ## Example
+
+      iex> FritzApi.get_switch_power(sid, "687690315761")
+      {:ok, 0.0}
+
   """
   @spec get_switch_power(String.t, String.t, opts) :: {:error, any} | {:ok, float()}
   def get_switch_power(sid, ain, opts \\ []) do
@@ -145,6 +218,12 @@ defmodule FritzApi do
 
   @doc """
   Get the total energy usage (kWh) of the switch.
+
+  ## Example
+
+      iex> FritzApi.get_switch_energy(sid, "687690315761")
+      {:ok, 0.475}
+
   """
   @spec get_switch_energy(String.t, String.t, opts) :: {:error, any} | {:ok, float()}
   def get_switch_energy(sid, ain, opts \\ []) do
@@ -159,6 +238,12 @@ defmodule FritzApi do
 
   @doc """
   Get the name of the actor.
+
+  ## Example
+
+      iex> FritzApi.get_switch_name(sid, "687690315761")
+      {:ok, "FRITZ!DECT #1"}
+
   """
   @spec get_switch_name(String.t, String.t, opts) :: {:error, any} | {:ok, String.t}
   def get_switch_name(sid, ain, opts \\ []) do
@@ -172,6 +257,12 @@ defmodule FritzApi do
 
   @doc """
   Get the last measured temperature (Celsius) of the actor.
+
+  ## Example
+
+      iex> FritzApi.get_temperature(sid, "687690315761")
+      {:ok, 23.5}
+
   """
   @spec get_temperature(String.t, String.t, opts) :: {:error, any} | {:ok, float()}
   def get_temperature(sid, ain, opts \\ []) do
