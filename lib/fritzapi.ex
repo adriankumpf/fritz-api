@@ -3,9 +3,11 @@ defmodule Fritzapi do
   Documentation for Fritzapi.
   """
 
-  alias Fritzapi.{Options, Helper}
+  alias Fritzapi.{FritzBox, Helper, DeviceListInfos}
 
-  @doc"""
+  @path "/webservices/homeautoswitch.lua"
+
+  @doc """
   Get the session id which is required by all other commands.
 
   Dabei sollte ein Programm zu jeder FRITZ!Box jeweils nur eine Sess ion-ID
@@ -22,141 +24,150 @@ defmodule Fritzapi do
   auf die FRITZ!Box zuzugreifen, werden alle aktiven Si tzungen aus
   Sicherheitsgründen beendet.
   """
-  def get_session_id(username, password, opts \\ %Options{}) do
+  def get_session_id(username, password, opts \\ []) do
     Fritzapi.SessionId.fetch(username, password, opts)
   end
 
-  @doc"""
+  @doc """
   Liefert die grundlegenden Informationen aller SmartHome-Geräte
   """
-  def get_device_list_infos(sid, opts \\ %Options{}) do
-    Fritzapi.DeviceListInfos.fetch(sid, opts)
+  def get_device_list_infos(sid, opts \\ []) do
+    resp = FritzBox.get(@path, [sid: sid, switchcmd: "getdevicelistinfos"], opts)
+
+    case resp do
+      {:ok, devicelist_xml} -> {:ok, DeviceListInfos.parse_device_list(devicelist_xml)}
+      err -> err
+    end
   end
 
-  @doc"""
+  @doc """
   Liefert die kommaseparierte AIN/MAC Liste aller bekannten Steckdosen
   """
-  def get_switch_list(sid, opts \\ %Options{}) do
-    resp = Fritzapi.Command.execute("getswitchlist", sid, opts)
+  def get_switch_list(sid, opts \\ []) do
+     resp = FritzBox.get(@path, %{sid: sid, switchcmd: "getswitchlist"}, opts)
 
-    resp
-    |> String.split(",")
+    case resp do
+      {:ok, ""} -> {:ok, []}
+      {:ok, ains} -> {:ok, String.split(ains, ",")}
+      err -> err
+    end
   end
 
-  @doc"""
+  @doc """
   Schaltet Steckdose ein
   """
-  def set_switch_on(sid, ain, opts \\ %Options{}) do
-    resp = Fritzapi.Command.execute("setswitchon", ain, sid, opts)
+  def set_switch_on(sid, ain, opts \\ []) do
+    resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "setswitchon"}, opts)
 
     case resp do
-      "1" -> :ok
+      {:ok, "1"} -> :ok
       err -> err
     end
   end
 
-  @doc"""
+  @doc """
   Schaltet Steckdose aus
   """
-  def set_switch_off(sid, ain, opts \\ %Options{}) do
-    resp = Fritzapi.Command.execute("setswitchoff", ain, sid, opts)
+  def set_switch_off(sid, ain, opts \\ []) do
+    resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "setswitchoff"}, opts)
 
     case resp do
-      "0" -> :ok
+      {:ok, "0"} -> :ok
       err -> err
     end
   end
 
-  @doc"""
+  @doc """
   Toggeln der Steckdose ein/aus
   """
-  def set_switch_toggle(sid, ain, opts \\ %Options{}) do
-    resp = Fritzapi.Command.execute("setswitchtoggle", ain, sid, opts)
+  def set_switch_toggle(sid, ain, opts \\ []) do
+    resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "setswitchtoggle"}, opts)
 
     case resp do
-      "0" -> {:ok, :off}
-      "1" -> {:ok, :on}
+      {:ok, "0"} -> {:ok, :off}
+      {:ok, "1"} -> {:ok, :on}
       err -> err
     end
   end
 
-  @doc"""
+  @doc """
   Ermittelt Schaltzustand der Steckdose
   """
-  def get_switch_state(sid, ain, opts \\ %Options{}) do
-    resp = Fritzapi.Command.execute("getswitchstate", ain, sid, opts)
+  def get_switch_state(sid, ain, opts \\ []) do
+    resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "getswitchstate"}, opts)
 
     case resp do
-      "0" -> {:ok, :off}
-      "1" -> {:ok, :on}
-      "inval" -> {:error, :unknown}
+      {:ok, "0"} -> {:ok, :off}
+      {:ok, "1"} -> {:ok, :on}
+      {:ok, "inval"} -> {:error, :unknown}
       err -> err
     end
   end
 
-  @doc"""
+  @doc """
   Ermittelt Verbindungsstatus des Aktors
   """
-  def get_switch_present(sid, ain, opts \\ %Options{}) do
-    resp = Fritzapi.Command.execute("getswitchpresent", ain, sid, opts)
+  def get_switch_present(sid, ain, opts \\ []) do
+    resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "getswitchpresent"}, opts)
 
     case resp do
-      "0" -> {:ok, :not_connected}
-      "1" -> {:ok, :connected}
+      {:ok, "0"} -> {:ok, :not_connected}
+      {:ok, "1"} -> {:ok, :connected}
       err -> err
     end
   end
 
-  @doc"""
+  @doc """
   Ermittelt aktuell über die Steckdose entnommene Leistung
   Leistung in W
   """
-  def get_switch_power(sid, ain, opts \\ %Options{}) do
-    resp = Fritzapi.Command.execute("getswitchpower", ain, sid, opts)
+  def get_switch_power(sid, ain, opts \\ []) do
+    resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "getswitchpower"}, opts)
 
     case resp do
-      "inval" -> {:error, :unknown}
-      val when is_binary(val) -> {:ok, Helper.parse_float(val, 3) }
+      {:ok, "inval"} -> {:error, :unknown}
+      {:ok, val} -> {:ok, Helper.parse_float(val, 3) }
       err -> err
     end
   end
 
-  @doc"""
+  @doc """
   Liefert die über die Steckdose entnommene Ernergiemenge seit Erstinbetriebnahme
   oder Zurücksetzen der Energiestatistik
+  Energiemenge in kWh
   """
-  def get_switch_energy(sid, ain, opts \\ %Options{}) do
-    resp = Fritzapi.Command.execute("getswitchenergy", ain, sid, opts)
+  def get_switch_energy(sid, ain, opts \\ []) do
+    resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "getswitchenergy"}, opts)
 
     case resp do
-      "inval" -> {:error, :unknown}
-      val when is_binary(val) -> {:ok, Helper.parse_float(val, 3)}
+      {:ok, "inval"} -> {:error, :unknown}
+      {:ok, val} -> {:ok, Helper.parse_float(val, 3)}
       err -> err
     end
   end
 
-  @doc"""
+  @doc """
   Liefert Bezeichner des Aktors
   """
-  def get_switch_name(sid, ain, opts \\ %Options{}) do
-    resp = Fritzapi.Command.execute("getswitchname", ain, sid, opts)
+  def get_switch_name(sid, ain, opts \\ []) do
+    resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "getswitchname"}, opts)
 
     case resp do
-      val when is_binary(val) -> {:ok, val}
+      {:ok, val} -> {:ok, val}
       err -> err
     end
   end
 
-  @doc"""
+  @doc """
   Letzte Temperaturinformation des Aktors
+  Temperture in Celsius
   """
-  def get_temperature(sid, ain, opts \\ %Options{}) do
-    resp = Fritzapi.Command.execute("gettemperature", ain, sid, opts)
+  def get_temperature(sid, ain, opts \\ []) do
+    resp = FritzBox.get(@path, %{sid: sid, ain: ain, switchcmd: "gettemperature"}, opts)
 
     case resp do
-      val when is_binary(val) -> {:ok, Helper.parse_float(val, 1)}
+      {:ok, val} -> {:ok, Helper.parse_float(val, 1)}
       err -> err
     end
   end
-
 end

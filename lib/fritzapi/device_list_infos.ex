@@ -5,16 +5,10 @@ defmodule Fritzapi.DeviceListInfos do
 
   import SweetXml
 
-  alias Fritzapi.{FritzBox, Helper, Params}
+  alias Fritzapi.Helper
 
-  @path "/webservices/homeautoswitch.lua"
-  @cmd "getdevicelistinfos"
-
-  def fetch(sid, opts) do
-    {:ok, devicelist_xml} =
-      FritzBox.get(@path, %Params{sid: sid, switchcmd: @cmd}, opts)
-
-    devicelist_xml
+  def parse_device_list(xml) do
+    xml
     |> parse_xml
     |> remove_empty_functions
   end
@@ -31,7 +25,7 @@ defmodule Fritzapi.DeviceListInfos do
     [
       fwversion: ~x"./@fwversion"s,
       id: ~x"./@id"i,
-      identifier: ~x"./@identifier"s,
+      ain: ~x"./@identifier"s |> transform_by(&String.replace(&1, " ", "")),
       manufacturer: ~x"./@manufacturer"s,
       productname: ~x"./@productname"s,
       present: ~x"./present/text()"i |> transform_by(&Helper.parse_boolean/1),

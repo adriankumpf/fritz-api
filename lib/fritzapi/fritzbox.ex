@@ -1,19 +1,18 @@
 defmodule Fritzapi.FritzBox do
   alias HTTPoison.{Response, Error}
-  alias Fritzapi.{Options, Params}
+  alias Fritzapi.Params
 
-  def get(path, %Params{} = params, %Options{} = opts) do
-    get(path <> "?" <> Params.encode(params), opts)
-  end
-  def get(path, %Options{base: base}) do
-    (base <> path)
-    |> HTTPoison.get
+  @base "http://fritz.box"
+
+  def get(path, params, opts) do
+    "#{opts[:base] || @base}#{path}"
+    |> HTTPoison.get([], [params: params, ssl: opts[:ssl]])
     |> parse_response
   end
 
   defp parse_body(body) do
     case Regex.run(~r/action=".?login.lua"/, body) do
-      nil -> {:ok, body}
+      nil -> {:ok, String.trim_trailing(body, "\n")}
       _ -> {:error, :forbidden}
     end
   end

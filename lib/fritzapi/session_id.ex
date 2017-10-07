@@ -3,14 +3,14 @@ defmodule Fritzapi.SessionId do
   Implemented according to https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/AVM_Technical_Note_-_Session_ID.pdf
   """
 
-  alias Fritzapi.{FritzBox, Helper, Params}
+  alias Fritzapi.{FritzBox, Helper}
 
   @zero_sid "0000000000000000"
 
   def fetch(username, password, opts) do
-    with {:ok, challenge_body} <- FritzBox.get("/login_sid.lua", opts),
+    with {:ok, challenge_body} <- FritzBox.get("/login_sid.lua", [], opts),
          {:ok, challenge_resp} <- create_challenge_response(challenge_body, password),
-         {:ok, login_body} <- FritzBox.get("/login_sid.lua",  %Params{username: username, response: challenge_resp}, opts),
+         {:ok, login_body} <- FritzBox.get("/login_sid.lua", [username: username, response: challenge_resp], opts),
          {:ok, session_id} <- parse_login_body(login_body)
     do
       session_id
