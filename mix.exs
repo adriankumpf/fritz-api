@@ -8,14 +8,10 @@ defmodule FritzApi.Mixfile do
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
-
-      # Docs
+      dialyzer: dialyzer(),
       name: "FritzApi",
       source_url: "https://github.com/adriankumpf/fritz-api",
-      docs: [
-        main: "FritzApi",
-        extras: ["README.md"]
-      ]
+      docs: docs()
     ]
   end
 
@@ -27,10 +23,32 @@ defmodule FritzApi.Mixfile do
 
   defp deps do
     [
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:httpoison, "~> 0.13"},
       {:sweet_xml, "~> 0.6.5"},
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
-      {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp dialyzer do
+    [
+      flags: [
+        "-Wunmatched_returns",
+        :error_handling,
+        :race_conditions,
+        :underspecs
+      ],
+      ignore_warnings: [
+        "dialyzer.ignore-warnings"
+      ]
+    ]
+  end
+
+  defp docs do
+    [
+      main: "FritzApi",
+      extras: ["README.md"]
     ]
   end
 end

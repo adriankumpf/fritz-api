@@ -1,24 +1,56 @@
 defmodule FritzApi.DeviceListInfos do
-  @moduledoc false
-
+  @moduledoc """
+  """
   import SweetXml
 
   alias FritzApi.Helper
 
+  @type t :: [%{
+    fwversion: String.t,
+    id: integer,
+    ain: String.t,
+    manufacturer: String.t,
+    productname: String.t,
+    present: boolean,
+    name: String.t,
+    switch: (none | [%{
+      state: boolean,
+      mode: String.t,
+      lock: boolean,
+      devicelock: boolean
+    }]),
+    powermeter: (none | [%{
+      power: float,
+      energy: float
+    }]),
+    temperature: (none | [%{
+      celsius: float,
+      offset: float
+    }]),
+    alert: (none | [%{
+      state: boolean
+    }])
+  }]
+
+  @doc false
+  @spec parse_device_list(String.t) :: t
   def parse_device_list(xml) do
     xml
     |> parse_xml
     |> remove_empty_functions
   end
 
+  @spec parse_xml(String.t) :: t
   defp parse_xml(xml_string) do
     xpath(xml_string, ~x"/devicelist/device"l, device_list_schema())
   end
 
+  @spec remove_empty_functions(t) :: t
   defp remove_empty_functions(device_list) do
     Enum.map(device_list, &Helper.remove_nil_values/1)
   end
 
+  @spec device_list_schema() :: [...]
   defp device_list_schema do
     [
       fwversion: ~x"./@fwversion"s,

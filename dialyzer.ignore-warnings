@@ -1,0 +1,1 @@
+Type specification 'Elixir.FritzApi.DeviceListInfos':device_list_schema() -> [any(),...] is a supertype of the success typing:
