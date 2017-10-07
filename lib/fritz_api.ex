@@ -3,7 +3,7 @@ defmodule FritzApi do
   API Client for the Fritz!Box Home Automation HTTP Interface
   """
 
-  alias FritzApi.{FritzBox, Helper, DeviceListInfos}
+  alias FritzApi.{FritzBox, Helper, DeviceListInfos, SessionId}
 
   @path "/webservices/homeautoswitch.lua"
 
@@ -21,7 +21,7 @@ defmodule FritzApi do
   sessions get terminated.
   """
   def get_session_id(username, password, opts \\ []) do
-    FritzApi.SessionId.fetch(username, password, opts)
+    SessionId.fetch(username, password, opts)
   end
 
   @doc """
@@ -31,8 +31,10 @@ defmodule FritzApi do
     resp = FritzBox.get(@path, [sid: sid, switchcmd: "getdevicelistinfos"], opts)
 
     case resp do
-      {:ok, devicelist_xml} -> {:ok, DeviceListInfos.parse_device_list(devicelist_xml)}
-      err -> err
+      {:ok, devicelist_xml} ->
+        {:ok, DeviceListInfos.parse_device_list(devicelist_xml)}
+      err ->
+        err
     end
   end
 
@@ -121,7 +123,7 @@ defmodule FritzApi do
 
     case resp do
       {:ok, "inval"} -> {:error, :unknown}
-      {:ok, val} -> {:ok, Helper.parse_float(val, 3) }
+      {:ok, val} -> {:ok, Helper.parse_float(val, 3)}
       err -> err
     end
   end

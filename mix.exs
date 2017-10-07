@@ -29,7 +29,8 @@ defmodule FritzApi.Mixfile do
     [
       {:httpoison, "~> 0.13"},
       {:sweet_xml, "~> 0.6.5"},
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
     ]
   end
 end

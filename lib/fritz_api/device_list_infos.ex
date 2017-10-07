@@ -49,12 +49,9 @@ defmodule FritzApi.DeviceListInfos do
         ~x"./alert"o,
         state: ~x"./state/text()"i |> transform_by(&Helper.parse_boolean/1),
       ],
-      # TODO Heizkörperregler
-      #
       # hkr: [
       #   ~x"./hkr"o,
       # ]
     ]
   end
 end
-
