@@ -7,7 +7,7 @@ defmodule Fritzapi.DeviceListInfos do
 
   import SweetXml
 
-  alias Fritzapi.{FritzBox, Options}
+  alias Fritzapi.{FritzBox, Options, Helper}
 
   @path "/webservices/homeautoswitch.lua"
 
@@ -34,42 +34,30 @@ defmodule Fritzapi.DeviceListInfos do
       identifier: ~x"./@identifier"s,
       manufacturer: ~x"./@manufacturer"s,
       productname: ~x"./@productname"s,
-      present: ~x"./present/text()"i |> transform_by(&parse_boolean/1),
+      present: ~x"./present/text()"i |> transform_by(&Helper.parse_boolean/1),
       name: ~x"./name/text()"s,
       switch: [
         ~x"./switch"o,
-        state: ~x"./state/text()"i |> transform_by(&parse_boolean/1),
+        state: ~x"./state/text()"i |> transform_by(&Helper.parse_boolean/1),
         mode: ~x"./mode/text()"s,
-        lock: ~x"./lock/text()"i |> transform_by(&parse_boolean/1),
-        devicelock: ~x"./devicelock/text()"i |> transform_by(&parse_boolean/1),
+        lock: ~x"./lock/text()"i |> transform_by(&Helper.parse_boolean/1),
+        devicelock: ~x"./devicelock/text()"i |> transform_by(&Helper.parse_boolean/1),
       ],
       powermeter: [
         ~x"./powermeter"o,
-        power: ~x"./power/text()"s |> transform_by(& parse_float(&1, 3)),
-        energy: ~x"./energy/text()"s |> transform_by(& parse_float(&1, 1))
+        power: ~x"./power/text()"s |> transform_by(& Helper.parse_float(&1, 3)),
+        energy: ~x"./energy/text()"s |> transform_by(& Helper.parse_float(&1, 1))
       ],
       temperature: [
         ~x"./temperature"o,
-        celsius: ~x"./celsius/text()"s |> transform_by(& parse_float(&1, 1)),
-        offset: ~x"./offset/text()"s |> transform_by(& parse_float(&1, 1)),
+        celsius: ~x"./celsius/text()"s |> transform_by(& Helper.parse_float(&1, 1)),
+        offset: ~x"./offset/text()"s |> transform_by(& Helper.parse_float(&1, 1)),
       ],
       alert: [
         ~x"./alert"o,
-        state: ~x"./state/text()"i |> transform_by(&parse_boolean/1),
+        state: ~x"./state/text()"i |> transform_by(&Helper.parse_boolean/1),
       ]
     ]
-  end
-
-  defp parse_boolean(0), do: false
-  defp parse_boolean(1), do: true
-
-  defp parse_float("0", _) do
-    0
-  end
-  defp parse_float(string, dec_places) do
-    {left, right} = String.split_at(string, dec_places * -1)
-    {float, ""} = Float.parse(left <> "." <> right)
-    float
   end
 end
 
