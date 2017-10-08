@@ -21,6 +21,10 @@ create-docs: ## Create the documentation
 analyze: ## Run a static analysis with Dialyzer
 	@mix dialyzer
 
-.PHONY: publish
-publish: ## Publish the package and its documentation
+.PHONY: publish-package
+publish-pakcage: ## Publish the package
 	@mix hex.publish package
+
+.PHONY: publish-docs
+publish-docs: ## Publish the documentation
+	@mix hex.publish docs
