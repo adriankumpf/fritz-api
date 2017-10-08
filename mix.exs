@@ -8,10 +8,11 @@ defmodule FritzApi.Mixfile do
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
+      description: "Fritz!Box Home Automation API Client for Elixir",
       dialyzer: dialyzer(),
-      name: "FritzApi",
+      docs: docs(),
+      package: package(),
       source_url: "https://github.com/adriankumpf/fritz-api",
-      docs: docs()
     ]
   end
 
@@ -38,9 +39,6 @@ defmodule FritzApi.Mixfile do
         :error_handling,
         :race_conditions,
         :underspecs
-      ],
-      ignore_warnings: [
-        "dialyzer.ignore-warnings"
       ]
     ]
   end
@@ -49,6 +47,14 @@ defmodule FritzApi.Mixfile do
     [
       main: "FritzApi",
       extras: ["README.md"]
+    ]
+  end
+
+  defp package do
+    [
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/adriankumpf/fritz-api"},
+      maintainers: ["Adrian Kumpf"]
     ]
   end
 end
