@@ -50,16 +50,22 @@ defmodule FritzApi.SessionId do
   defp parse_login_body(
     ~s(<?xml version="1.0" encoding="utf-8"?>) <>
     "<SessionInfo><SID>" <> <<session_id::bytes-size(16)>> <> "</SID>" <>
-    _rest
+    rest
   ) do
     case session_id do
       @zero_sid ->
-        {:error, :login_failed}
+        {:error, {:login_failed, block_time: get_blocktime(rest)}}
       _ ->
         {:ok, session_id}
     end
   end
   defp parse_login_body(_) do
     {:error, :invalid_login_body}
+  end
+
+  defp get_blocktime(xml) do
+    [[_, time_str]] = Regex.scan(~r/<BlockTime>(\d+)<\/BlockTime>/, xml)
+    {time, _} = Integer.parse(time_str)
+    time
   end
 end
