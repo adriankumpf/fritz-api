@@ -1,8 +1,8 @@
 defmodule FritzApi.Commands do
   @moduledoc false
 
-  alias FritzApi.Commands.DeviceListInfos
-  alias FritzApi.{Helper, FritzBox}
+  alias FritzApi.Commands.{Helper, DeviceListInfos}
+  alias FritzApi.FritzBox
 
   @path "/webservices/homeautoswitch.lua"
 

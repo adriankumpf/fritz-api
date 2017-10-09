@@ -1,7 +1,8 @@
 defmodule FritzApi.SessionId do
   @moduledoc false
 
-  alias FritzApi.{FritzBox, Helper}
+  alias FritzApi.SessionId.Crypto
+  alias FritzApi.FritzBox
 
   @zero_sid "0000000000000000"
 
@@ -37,7 +38,7 @@ defmodule FritzApi.SessionId do
   ) do
     case session_id do
       @zero_sid ->
-        {:ok, challenge <> "-" <> Helper.md5(challenge <> "-" <> password)}
+        {:ok, challenge <> "-" <> Crypto.md5(challenge <> "-" <> password)}
       _ ->
         {:error, {:already_logged_in, session_id}}
     end

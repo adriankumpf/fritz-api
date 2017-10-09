@@ -3,7 +3,7 @@ defmodule FritzApi.Commands.DeviceListInfos do
   """
   import SweetXml
 
-  alias FritzApi.Helper
+  alias FritzApi.Commands.Helper
 
   @type t :: [%{
     fwversion: String.t,
