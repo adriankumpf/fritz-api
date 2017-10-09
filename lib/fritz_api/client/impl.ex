@@ -10,15 +10,11 @@ defmodule FritzApi.Client.Impl do
 
   def executte_command(cmd, ain, %{sid: sid, username: user, password: pw, opts: opts} = state) do
     case apply(Commands, cmd, remove_nil([sid, ain, opts])) do
-      :ok ->
-        {:ok, state}
-      {:ok, val} ->
-        {{:ok, val}, state}
       {:error, :forbidden} ->
         {:ok, new_sid} = FritzApi.get_session_id(user, pw, opts)
         executte_command(cmd, ain, %{state | sid: new_sid})
-      {:error, _} = err ->
-        {err, state}
+      result ->
+        {result, state}
     end
   end
 

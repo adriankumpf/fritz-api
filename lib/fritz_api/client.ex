@@ -65,7 +65,6 @@ defmodule FritzApi.Client do
     :set_switch_toggle,
   ]
 
-
   def start(opts), do:
     GenServer.start_link(Server, opts, name: __MODULE__)
 
