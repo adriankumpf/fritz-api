@@ -5,8 +5,11 @@ defmodule FritzApi.Commands.HelperTest do
 
   test "parses booleans" do
     assert Helper.parse_boolean(0) === false
+    assert Helper.parse_boolean("0") === false
     assert Helper.parse_boolean(1) === true
-    assert Helper.parse_boolean(99) === :error
+    assert Helper.parse_boolean("1") === true
+    assert Helper.parse_boolean("") === nil
+    assert Helper.parse_boolean(99) === nil
   end
 
   test "parses floats with given number of decimal places" do
@@ -16,5 +19,11 @@ defmodule FritzApi.Commands.HelperTest do
     assert Helper.parse_float("100", 0) === 100.0
     assert Helper.parse_float("011", 3) === 0.011
   end
+
+  test "parses lists" do
+    assert Helper.parse_list("") === []
+    assert Helper.parse_list("1,2,3,4") === ["1", "2", "3", "4"]
+  end
+
 end
 

@@ -5,7 +5,11 @@ defmodule FritzApi.FritzBox do
 
   @base "http://fritz.box"
 
-  @type opts :: [base: String.t, ssl: list]
+  @type opts :: [
+    base: String.t,
+    ssl: list
+  ]
+
   @type params :: [
     ain: String.t,
     response: String.t,

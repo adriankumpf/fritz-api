@@ -1,23 +1,22 @@
 defmodule FritzApi.Commands.Helper do
   @moduledoc false
 
-  @spec parse_boolean(integer()) :: :error | false | true
+  @spec parse_boolean(integer | String.t) :: boolean | nil
   def parse_boolean(0), do: false
   def parse_boolean(1), do: true
-  def parse_boolean(_), do: :error
+  def parse_boolean("0"), do: false
+  def parse_boolean("1"), do: true
+  def parse_boolean(_), do: nil
 
-  @spec parse_float(String.t, integer()) :: float()
+  @spec parse_list(String.t) :: [String.t]
+  def parse_list(""), do: []
+  def parse_list(str) when is_binary(str), do: String.split(str, ",")
+
+  @spec parse_float(String.t, integer) :: float | nil
   def parse_float(string, dec_places) do
-    string
-    |> Integer.parse
-    |> elem(0)
-    |> Kernel./(:math.pow(10, dec_places))
-  end
-
-  @spec remove_nil_values(map()) :: map()
-  def remove_nil_values(map) when is_map(map) do
-    map
-    |> Enum.filter(fn {_, v} -> v != nil end)
-    |> Enum.into(%{})
+    case Integer.parse(string) do
+      {val, ""} -> val / :math.pow(10, dec_places)
+      _ -> nil
+    end
   end
 end

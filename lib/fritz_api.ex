@@ -1,10 +1,9 @@
 defmodule FritzApi do
   @moduledoc """
-  API Client for the Fritz!Box Home Automation HTTP Interface
+  Fritz!Box Home Automation API Client for Elixir
   """
 
-  alias FritzApi.Commands.DeviceListInfos
-  alias FritzApi.{Commands, SessionId}
+  alias FritzApi.{Commands, SessionId, Actor}
 
   @typedoc """
   - __base__: The base url of the fritzbox. Defaults to "http://fritz.box"
@@ -54,7 +53,7 @@ defmodule FritzApi do
         switch: %{
           devicelock: false,
           lock: false,
-          mode: "manuell",
+          mode: :manual,
           state: false
         },
         temperature: %{
@@ -64,11 +63,11 @@ defmodule FritzApi do
       }]}
 
   """
-  @spec get_device_list_infos(String.t, opts) :: {:error, any} | {:ok, DeviceListInfos.t}
+  @spec get_device_list_infos(String.t, opts) :: {:error, any} | {:ok, [Actor.t]}
   defdelegate get_device_list_infos(sid, opts \\ []), to: Commands
 
   @doc """
-  Get the actuator identification numbers (AIN) of all known switches.
+  Get the actuator identification numbers (AIN) of all known actors.
 
   ## Example
 
@@ -112,33 +111,35 @@ defmodule FritzApi do
       {:ok, :off}
 
   """
-  @spec set_switch_toggle(String.t, String.t, opts) :: {:error, any} | {:ok, :on | :off}
+  @spec set_switch_toggle(String.t, String.t, opts) :: {:error, any} | {:ok, nil | boolean}
   defdelegate set_switch_toggle(sid, ain, opts \\ []), to: Commands
 
   @doc """
-  Get the current state of the switch.
+  Get the current switching state.
 
   Returns `{:ok, nil}` if the state is unkown.
 
   ## Example
 
       iex> FritzApi.get_switch_state(sid, "687690315761")
-      {:ok, :off}
+      {:ok, false}
 
   """
-  @spec get_switch_state(String.t, String.t, opts) :: {:error, any} | {:ok, :on | :off | nil}
+  @spec get_switch_state(String.t, String.t, opts) :: {:error, any} | {:ok, nil | boolean}
   defdelegate get_switch_state(sid, ain, opts \\ []), to: Commands
 
   @doc """
   Get the current connection state of the actor.
 
+  Returns `{:ok, nil}` if the connection state is unkown.
+
   ## Example
 
       iex> FritzApi.get_switch_present(sid, "687690315761")
-      {:ok, :connected}
+      {:ok, true}
 
   """
-  @spec get_switch_present(String.t, String.t, opts) :: {:error, any} | {:ok, :connected | :not_connected}
+  @spec get_switch_present(String.t, String.t, opts) :: {:error, any} | {:ok, nil | boolean}
   defdelegate get_switch_present(sid, ain, opts \\ []), to: Commands
 
   @doc """
@@ -184,13 +185,15 @@ defmodule FritzApi do
   @doc """
   Get the last measured temperature (Celsius) of the actor.
 
+  Returns `{:ok, nil}` if the temperature could not be measured.
+
   ## Example
 
       iex> FritzApi.get_temperature(sid, "687690315761")
       {:ok, 23.5}
 
   """
-  @spec get_temperature(String.t, String.t, opts) :: {:error, any} | {:ok, float}
+  @spec get_temperature(String.t, String.t, opts) :: {:error, any} | {:ok, nil | float}
   defdelegate get_temperature(sid, ain, opts \\ []), to: Commands
 
 end
