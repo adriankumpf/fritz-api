@@ -88,23 +88,21 @@ defmodule FritzApi.Commands do
 
   @spec execute_command(String.t, String.t, [ain: String.t], opts) :: {:error, any} | {:ok, String.t}
   defp execute_command(cmd, sid, [ain: ain], opts) do
-    FritzBox.get(@path, [switchcmd: cmd, sid: sid, ain: ain], opts)
-    |> translate_actor_error
+    case FritzBox.get(@path, [switchcmd: cmd, sid: sid, ain: ain], opts) do
+      {:error, :bad_request} -> {:error, :actor_not_found}
+      other -> other
+    end
   end
   @spec execute_command(String.t, String.t, opts) :: {:error, any} | {:ok, String.t}
   defp execute_command(cmd, sid, opts) do
     FritzBox.get(@path, [switchcmd: cmd, sid: sid], opts)
   end
 
-  @spec translate_actor_error({:error, any} | {:ok, String.t}) :: {:error, any} | {:ok, String.t}
-  defp translate_actor_error({:error, :bad_request}), do:
-    {:error, :actor_not_found}
-  defp translate_actor_error(other), do:
-    other
-
   @spec to_devicelist({:ok, String.t} | {:error, any}) :: {:ok, [Actor.t]} | {:error, any}
-  defp to_devicelist({:ok, xml}), do: {:ok, DeviceListInfos.parse_device_list(xml)}
-  defp to_devicelist({:error, _} = err), do: err
+  defp to_devicelist({:ok, xml}), do:
+    {:ok, DeviceListInfos.parse_device_list(xml)}
+  defp to_devicelist({:error, _} = err), do:
+    err
 
   @spec to_list({:ok, String.t} | {:error, any}) :: {:ok, [String.t]} | {:error, any}
   defp to_list({:ok, string}), do: {:ok, Helper.parse_list(string)}
@@ -120,7 +118,9 @@ defmodule FritzApi.Commands do
   defp to_boolean({:error, _} = err), do: err
 
   @spec to_float({:ok, String.t} | {:error, any}, integer) :: {:ok, float | nil} | {:error, any}
-  defp to_float({:ok, val}, dec_places), do: {:ok, Helper.parse_float(val, dec_places)}
-  defp to_float({:error, _} = err, _), do: err
+  defp to_float({:ok, val}, dec_places), do:
+    {:ok, Helper.parse_float(val, dec_places)}
+  defp to_float({:error, _} = err, _), do:
+    err
 
 end

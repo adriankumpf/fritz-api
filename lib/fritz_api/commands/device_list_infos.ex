@@ -62,7 +62,7 @@ defmodule FritzApi.Commands.DeviceListInfos do
   @spec parse_ain(String.t) :: String.t
   defp parse_ain(str), do: String.replace(str, " ", "")
 
-  @spec parse_mode(Stringl.t) :: :manual | :auto | nil
+  @spec parse_mode(String.t) :: :manual | :auto | nil
   defp parse_mode("manuell"), do: :manual
   defp parse_mode("auto"), do: :auto
   defp parse_mode(_), do: nil

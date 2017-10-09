@@ -3,7 +3,7 @@ defmodule FritzApi do
   Fritz!Box Home Automation API Client for Elixir
   """
 
-  alias FritzApi.{Commands, SessionId, Actor}
+  alias FritzApi.{Actor, Commands, SessionId}
 
   @typedoc """
   - __base__: The base url of the fritzbox. Defaults to "http://fritz.box"
@@ -31,9 +31,8 @@ defmodule FritzApi do
 
   """
   @spec get_session_id(String.t, String.t, opts) :: {:error, any} | {:ok, String.t}
-  def get_session_id(username, password, opts \\ []) do
-    SessionId.fetch(username, password, opts)
-  end
+  defdelegate get_session_id(username, password, opts \\ []), to: SessionId,
+                                                              as: :fetch
 
   @doc """
   Get essential information of all smart home devices.
