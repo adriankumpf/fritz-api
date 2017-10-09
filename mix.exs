@@ -8,7 +8,7 @@ defmodule FritzApi.Mixfile do
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
-      description: "Fritz!Box Home Automation API Client for Elixir",
+      description: "FritzBox Home Automation API Client for Elixir",
       dialyzer: dialyzer(),
       docs: docs(),
       package: package(),

@@ -4,13 +4,13 @@ defmodule FritzApi.Actor do
 
   ## Properties:
 
-  - ain: identification of the actor, e.g. "012340000123" or MAC address for network devices
-  - fwversion: firmware version of the device
-  - id: interal device ID
-  - manufacturer: should always be "AVM"
-  - productname: product name of the device; `nil` if undefined / unknown
-  - present: indicates whether the devices is connected with the FritzBox; either [`true` | `false` | `nil`]
-  - name: name of the device
+  - __ain__: identification of the actor, e.g. "012340000123" or MAC address for network devices
+  - __fwversion__: firmware version of the device
+  - __id__: interal device ID
+  - __manufacturer__: should always be "AVM"
+  - __productname__: product name of the device; `nil` if undefined / unknown
+  - __present__: indicates whether the devices is connected with the FritzBox; either [`true` | `false` | `nil`]
+  - __name__: name of the device
 
   ### Optional Properties
 
@@ -18,26 +18,26 @@ defmodule FritzApi.Actor do
 
   #### Switch
 
-  - state: switching state; either [`true` | `false` | `nil`]
-  - mode: `:auto` if in timer switch mode, otherwise `:manual`; can also be `nil` if undefined / unknown
-  - lock: state of the shift lock (via UI/API); either [`true` | `false` | `nil`]
-  - devicelock: state of the shift lock (via hardware button); either [`true` | `false` | `nil`]
+  - __state__: switching state; either [`true` | `false` | `nil`]
+  - __mode__: `:auto` if in timer switch mode, otherwise `:manual`; can also be `nil` if undefined / unknown
+  - __lock__: state of the shift lock (via UI/API); either [`true` | `false` | `nil`]
+  - __devicelock__: state of the shift lock (via hardware button); either [`true` | `false` | `nil`]
 
   #### Powermeter
 
-  - power: current power consumption (Watts); gets updated roughly every 2 minutes
-  - energy: total energy usage (kWh) since first use
+  - __power__: current power consumption (Watts); gets updated roughly every 2 minutes
+  - __energy__: total energy usage (kWh) since first use
 
   #### Temperature
 
-  - celsius: last measured temperature
-  - offsset: configured offsset value
+  - __celsius__: last measured temperature
+  - __offsset__: configured offsset value
 
-  ### Alert
+  #### Alert
 
-  - state: last known alert state; either [`true` | `false` | `nil`]
+  - __state__: last known alert state; either [`true` | `false` | `nil`]
 
-  # Hkr (Thermostat)
+  #### Hkr (Thermostat)
 
   Not yet implemented.
 
@@ -52,24 +52,24 @@ defmodule FritzApi.Actor do
     ain: String.t,
     manufacturer: String.t,
     productname: String.t,
-    present: boolean,
     name: String.t,
+    present: boolean | nil,
     switch: (none | [%{
-      state: boolean,
-      mode: String.t,
-      lock: boolean,
-      devicelock: boolean
+      state: boolean | nil,
+      mode: String.t | nil,
+      lock: boolean | nil,
+      devicelock: boolean | nil,
     }]),
     powermeter: (none | [%{
-      power: float,
-      energy: float
+      power: float | nil,
+      energy: float| nil,
     }]),
     temperature: (none | [%{
-      celsius: float,
-      offset: float
+      celsius: float | nil,
+      offset: float |nil,
     }]),
     alert: (none | [%{
-      state: boolean
+      state: boolean | nil,
     }])
   }
 
