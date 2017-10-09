@@ -46,7 +46,7 @@ defmodule FritzApi.Client do
     }
   end
 
-  @timeout 5100
+  @timeout 11_000
 
   @commands_without_ain [
   :get_switch_list,

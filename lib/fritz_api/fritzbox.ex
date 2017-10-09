@@ -21,7 +21,7 @@ defmodule FritzApi.FritzBox do
   @spec get(String.t, params, opts) :: {:error, any} | {:ok, String.t}
   def get(path, params, opts) do
     "#{opts[:base] || @base}#{path}"
-    |> HTTPoison.get([], [params: params, ssl: opts[:ssl]])
+    |> HTTPoison.get([], [params: params, ssl: opts[:ssl], timeout: 10_000])
     |> parse_response
   end
 
