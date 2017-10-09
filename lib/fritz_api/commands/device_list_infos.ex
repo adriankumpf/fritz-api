@@ -1,4 +1,4 @@
-defmodule FritzApi.DeviceListInfos do
+defmodule FritzApi.Commands.DeviceListInfos do
   @moduledoc """
   """
   import SweetXml
