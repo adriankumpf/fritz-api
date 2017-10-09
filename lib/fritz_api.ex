@@ -72,7 +72,7 @@ defmodule FritzApi do
     case resp do
       {:ok, devicelist_xml} ->
         {:ok, DeviceListInfos.parse_device_list(devicelist_xml)}
-      err ->
+      {:error, _} = err ->
         err
     end
   end
@@ -93,7 +93,7 @@ defmodule FritzApi do
     case resp do
       {:ok, ""} -> {:ok, []}
       {:ok, ains} -> {:ok, String.split(ains, ",")}
-      err -> err
+      {:error, _} = err -> err
     end
   end
 
@@ -112,7 +112,8 @@ defmodule FritzApi do
 
     case resp do
       {:ok, "1"} -> :ok
-      err -> err
+      {:error, :bad_request} -> {:error, :actor_not_found}
+      {:error, _} = err -> err
     end
   end
 
@@ -131,7 +132,8 @@ defmodule FritzApi do
 
     case resp do
       {:ok, "0"} -> :ok
-      err -> err
+      {:error, :bad_request} -> {:error, :actor_not_found}
+      {:error, _} = err -> err
     end
   end
 
@@ -144,19 +146,22 @@ defmodule FritzApi do
       {:ok, :off}
 
   """
-  @spec set_switch_toggle(String.t, String.t, opts) :: {:error, any} | {:ok, :on} | {:ok, :off}
+  @spec set_switch_toggle(String.t, String.t, opts) :: {:error, any} | {:ok, :on | :off}
   def set_switch_toggle(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, [sid: sid, ain: ain, switchcmd: "setswitchtoggle"], opts)
 
     case resp do
       {:ok, "0"} -> {:ok, :off}
       {:ok, "1"} -> {:ok, :on}
-      err -> err
+      {:error, :bad_request} -> {:error, :actor_not_found}
+      {:error, _} = err -> err
     end
   end
 
   @doc """
   Get the current state of the switch.
+
+  Returns `{:ok, nil}` if the state is unkown.
 
   ## Example
 
@@ -164,15 +169,16 @@ defmodule FritzApi do
       {:ok, :off}
 
   """
-  @spec get_switch_state(String.t, String.t, opts) :: {:error, any} | {:ok, :on} | {:ok, :off}
+  @spec get_switch_state(String.t, String.t, opts) :: {:error, any} | {:ok, :on | :off | nil}
   def get_switch_state(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, [sid: sid, ain: ain, switchcmd: "getswitchstate"], opts)
 
     case resp do
       {:ok, "0"} -> {:ok, :off}
       {:ok, "1"} -> {:ok, :on}
-      {:ok, "inval"} -> {:error, :unknown}
-      err -> err
+      {:ok, "inval"} -> {:ok, nil}
+      {:error, :bad_request} -> {:error, :actor_not_found}
+      {:error, _} = err -> err
     end
   end
 
@@ -192,12 +198,15 @@ defmodule FritzApi do
     case resp do
       {:ok, "0"} -> {:ok, :not_connected}
       {:ok, "1"} -> {:ok, :connected}
-      err -> err
+      {:error, :bad_request} -> {:error, :actor_not_found}
+      {:error, _} = err -> err
     end
   end
 
   @doc """
   Get the current power consumption (Watt) of the switch.
+
+  Returns `{:ok, nil}` if the state is unkown.
 
   ## Example
 
@@ -205,19 +214,22 @@ defmodule FritzApi do
       {:ok, 0.0}
 
   """
-  @spec get_switch_power(String.t, String.t, opts) :: {:error, any} | {:ok, float()}
+  @spec get_switch_power(String.t, String.t, opts) :: {:error, any} | {:ok, nil | float}
   def get_switch_power(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, [sid: sid, ain: ain, switchcmd: "getswitchpower"], opts)
 
     case resp do
-      {:ok, "inval"} -> {:error, :unknown}
+      {:ok, "inval"} -> {:ok, nil}
       {:ok, val} -> {:ok, Helper.parse_float(val, 3)}
-      err -> err
+      {:error, :bad_request} -> {:error, :actor_not_found}
+      {:error, _} = err -> err
     end
   end
 
   @doc """
   Get the total energy usage (kWh) of the switch.
+
+  Returns `{:ok, nil}` if the state is unkown.
 
   ## Example
 
@@ -225,14 +237,15 @@ defmodule FritzApi do
       {:ok, 0.475}
 
   """
-  @spec get_switch_energy(String.t, String.t, opts) :: {:error, any} | {:ok, float()}
+  @spec get_switch_energy(String.t, String.t, opts) :: {:error, any} | {:ok, nil | float}
   def get_switch_energy(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, [sid: sid, ain: ain, switchcmd: "getswitchenergy"], opts)
 
     case resp do
-      {:ok, "inval"} -> {:error, :unknown}
+      {:ok, "inval"} -> {:ok, nil}
       {:ok, val} -> {:ok, Helper.parse_float(val, 3)}
-      err -> err
+      {:error, :bad_request} -> {:error, :actor_not_found}
+      {:error, _} = err -> err
     end
   end
 
@@ -250,8 +263,9 @@ defmodule FritzApi do
     resp = FritzBox.get(@path, [sid: sid, ain: ain, switchcmd: "getswitchname"], opts)
 
     case resp do
-      {:ok, val} -> {:ok, val}
-      err -> err
+      {:ok, _} = ok -> ok
+      {:error, :bad_request} -> {:error, :actor_not_found}
+      {:error, _} = err -> err
     end
   end
 
@@ -264,13 +278,14 @@ defmodule FritzApi do
       {:ok, 23.5}
 
   """
-  @spec get_temperature(String.t, String.t, opts) :: {:error, any} | {:ok, float()}
+  @spec get_temperature(String.t, String.t, opts) :: {:error, any} | {:ok, float}
   def get_temperature(sid, ain, opts \\ []) do
     resp = FritzBox.get(@path, [sid: sid, ain: ain, switchcmd: "gettemperature"], opts)
 
     case resp do
       {:ok, val} -> {:ok, Helper.parse_float(val, 1)}
-      err -> err
+      {:error, :bad_request} -> {:error, :actor_not_found}
+      {:error, _} = err -> err
     end
   end
 end
