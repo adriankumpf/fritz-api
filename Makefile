@@ -22,7 +22,7 @@ analyze: ## Run a static analysis with Dialyzer
 	@mix dialyzer
 
 .PHONY: publish-package
-publish-pakcage: ## Publish the package
+publish-package: ## Publish the package
 	@mix hex.publish package
 
 .PHONY: publish-docs
