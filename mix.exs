@@ -4,7 +4,7 @@ defmodule FritzApi.Mixfile do
   def project do
     [
       app: :fritz_api,
-      version: "1.0.0",
+      version: "1.0.1",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),

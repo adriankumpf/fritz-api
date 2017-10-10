@@ -3,6 +3,9 @@ defmodule FritzApi.Client.Impl do
 
   alias FritzApi.{SessionId, Commands}
 
+  def init([username: username, password: password] = args) do
+    init(args ++ [opts: []])
+  end
   def init([username: username, password: password, opts: opts]) do
     {:ok, sid} = SessionId.fetch(username, password, opts)
     %{sid: sid, username: username, password: password, opts: opts}
