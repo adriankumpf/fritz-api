@@ -4,15 +4,15 @@ defmodule FritzApi.Mixfile do
   def project do
     [
       app: :fritz_api,
-      version: "1.0.1",
+      version: "1.0.2",
       elixir: "~> 1.5",
-      start_permanent: Mix.env == :prod,
+      start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: "FritzBox Home Automation API Client for Elixir",
       dialyzer: dialyzer(),
       docs: docs(),
       package: package(),
-      source_url: "https://github.com/adriankumpf/fritz-api",
+      source_url: "https://github.com/adriankumpf/fritz-api"
     ]
   end
 
@@ -27,8 +27,8 @@ defmodule FritzApi.Mixfile do
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
-      {:httpoison, "~> 0.13"},
-      {:sweet_xml, "~> 0.6.5"},
+      {:httpoison, "~> 1.0"},
+      {:sweet_xml, "~> 0.6.5"}
     ]
   end
 

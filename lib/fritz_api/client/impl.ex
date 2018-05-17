@@ -6,7 +6,8 @@ defmodule FritzApi.Client.Impl do
   def init([username: _, password: _] = args) do
     init(args ++ [opts: []])
   end
-  def init([username: username, password: password, opts: opts]) do
+
+  def init(username: username, password: password, opts: opts) do
     {:ok, sid} = SessionId.fetch(username, password, opts)
     %{sid: sid, username: username, password: password, opts: opts}
   end
@@ -16,6 +17,7 @@ defmodule FritzApi.Client.Impl do
       {:error, :forbidden} ->
         {:ok, new_sid} = FritzApi.get_session_id(user, pw, opts)
         executte_command(cmd, ain, %{state | sid: new_sid})
+
       result ->
         {result, state}
     end
@@ -24,5 +26,4 @@ defmodule FritzApi.Client.Impl do
   defp remove_nil(list) do
     Enum.filter(list, &(&1 !== nil))
   end
-
 end

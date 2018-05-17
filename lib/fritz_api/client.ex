@@ -49,8 +49,8 @@ defmodule FritzApi.Client do
   @timeout 11_000
 
   @commands_without_ain [
-  :get_switch_list,
-  :get_device_list_infos,
+    :get_switch_list,
+    :get_device_list_infos
   ]
 
   @commands_with_ain [
@@ -62,20 +62,16 @@ defmodule FritzApi.Client do
     :get_temperature,
     :set_switch_off,
     :set_switch_on,
-    :set_switch_toggle,
+    :set_switch_toggle
   ]
 
-  def start(opts), do:
-    GenServer.start_link(Server, opts, name: __MODULE__)
+  def start(opts), do: GenServer.start_link(Server, opts, name: __MODULE__)
 
   for cmd <- @commands_without_ain do
-    def unquote(cmd)(), do:
-      GenServer.call(__MODULE__, unquote(cmd), @timeout)
+    def unquote(cmd)(), do: GenServer.call(__MODULE__, unquote(cmd), @timeout)
   end
 
   for cmd <- @commands_with_ain do
-    def unquote(cmd)(ain), do:
-      GenServer.call(__MODULE__, {unquote(cmd), ain}, @timeout)
+    def unquote(cmd)(ain), do: GenServer.call(__MODULE__, {unquote(cmd), ain}, @timeout)
   end
-
 end

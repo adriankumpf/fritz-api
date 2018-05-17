@@ -9,7 +9,7 @@ defmodule FritzApi do
   - __base__: The base url of the fritzbox. Defaults to "http://fritz.box"
   - __ssl__: SSL options supported by the ssl erlang module
   """
-  @type opts :: [base: String.t, ssl: list]
+  @type opts :: [base: String.t(), ssl: list]
 
   @doc """
   Get a session ID.
@@ -30,9 +30,10 @@ defmodule FritzApi do
       {:ok, "879b972027084f61"}
 
   """
-  @spec get_session_id(String.t, String.t, opts) :: {:error, any} | {:ok, String.t}
-  defdelegate get_session_id(username, password, opts \\ []), to: SessionId,
-                                                              as: :fetch
+  @spec get_session_id(String.t(), String.t(), opts) :: {:error, any} | {:ok, String.t()}
+  defdelegate get_session_id(username, password, opts \\ []),
+    to: SessionId,
+    as: :fetch
 
   @doc """
   Get essential information of all smart home devices.
@@ -40,7 +41,7 @@ defmodule FritzApi do
   ## Example
 
       iex> FritzApi.get_device_list_infos(sid)
-      {:ok, [%{
+      {:ok, [%FritzApi.Actor{
         ain: "687690315761",
         fwversion: "03.87",
         id: 21,
@@ -62,7 +63,7 @@ defmodule FritzApi do
       }]}
 
   """
-  @spec get_device_list_infos(String.t, opts) :: {:error, any} | {:ok, [Actor.t]}
+  @spec get_device_list_infos(String.t(), opts) :: {:error, any} | {:ok, [Actor.t()]}
   defdelegate get_device_list_infos(sid, opts \\ []), to: Commands
 
   @doc """
@@ -74,7 +75,7 @@ defmodule FritzApi do
       {:ok, ["687690315761"]}
 
   """
-  @spec get_switch_list(String.t, opts) :: {:error, any} | {:ok, [String.t]}
+  @spec get_switch_list(String.t(), opts) :: {:error, any} | {:ok, [String.t()]}
   defdelegate get_switch_list(sid, opts \\ []), to: Commands
 
   @doc """
@@ -86,7 +87,7 @@ defmodule FritzApi do
       :ok
 
   """
-  @spec set_switch_on(String.t, String.t, opts) :: {:error, any} | :ok
+  @spec set_switch_on(String.t(), String.t(), opts) :: {:error, any} | :ok
   defdelegate set_switch_on(sid, ain, opts \\ []), to: Commands
 
   @doc """
@@ -98,7 +99,7 @@ defmodule FritzApi do
       :ok
 
   """
-  @spec set_switch_off(String.t, String.t, opts) :: {:error, any} | :ok
+  @spec set_switch_off(String.t(), String.t(), opts) :: {:error, any} | :ok
   defdelegate set_switch_off(sid, ain, opts \\ []), to: Commands
 
   @doc """
@@ -110,7 +111,7 @@ defmodule FritzApi do
       {:ok, :off}
 
   """
-  @spec set_switch_toggle(String.t, String.t, opts) :: {:error, any} | {:ok, nil | boolean}
+  @spec set_switch_toggle(String.t(), String.t(), opts) :: {:error, any} | {:ok, nil | boolean}
   defdelegate set_switch_toggle(sid, ain, opts \\ []), to: Commands
 
   @doc """
@@ -124,7 +125,7 @@ defmodule FritzApi do
       {:ok, false}
 
   """
-  @spec get_switch_state(String.t, String.t, opts) :: {:error, any} | {:ok, nil | boolean}
+  @spec get_switch_state(String.t(), String.t(), opts) :: {:error, any} | {:ok, nil | boolean}
   defdelegate get_switch_state(sid, ain, opts \\ []), to: Commands
 
   @doc """
@@ -138,7 +139,7 @@ defmodule FritzApi do
       {:ok, true}
 
   """
-  @spec get_switch_present(String.t, String.t, opts) :: {:error, any} | {:ok, nil | boolean}
+  @spec get_switch_present(String.t(), String.t(), opts) :: {:error, any} | {:ok, nil | boolean}
   defdelegate get_switch_present(sid, ain, opts \\ []), to: Commands
 
   @doc """
@@ -152,7 +153,7 @@ defmodule FritzApi do
       {:ok, 0.0}
 
   """
-  @spec get_switch_power(String.t, String.t, opts) :: {:error, any} | {:ok, nil | float}
+  @spec get_switch_power(String.t(), String.t(), opts) :: {:error, any} | {:ok, nil | float}
   defdelegate get_switch_power(sid, ain, opts \\ []), to: Commands
 
   @doc """
@@ -166,7 +167,7 @@ defmodule FritzApi do
       {:ok, 0.475}
 
   """
-  @spec get_switch_energy(String.t, String.t, opts) :: {:error, any} | {:ok, nil | float}
+  @spec get_switch_energy(String.t(), String.t(), opts) :: {:error, any} | {:ok, nil | float}
   defdelegate get_switch_energy(sid, ain, opts \\ []), to: Commands
 
   @doc """
@@ -178,7 +179,7 @@ defmodule FritzApi do
       {:ok, "FRITZ!DECT #1"}
 
   """
-  @spec get_switch_name(String.t, String.t, opts) :: {:error, any} | {:ok, String.t}
+  @spec get_switch_name(String.t(), String.t(), opts) :: {:error, any} | {:ok, String.t()}
   defdelegate get_switch_name(sid, ain, opts \\ []), to: Commands
 
   @doc """
@@ -192,7 +193,6 @@ defmodule FritzApi do
       {:ok, 23.5}
 
   """
-  @spec get_temperature(String.t, String.t, opts) :: {:error, any} | {:ok, nil | float}
+  @spec get_temperature(String.t(), String.t(), opts) :: {:error, any} | {:ok, nil | float}
   defdelegate get_temperature(sid, ain, opts \\ []), to: Commands
-
 end

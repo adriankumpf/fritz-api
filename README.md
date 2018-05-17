@@ -20,7 +20,7 @@ end
 ```elixir
 iex> FritzApi.Client.start("admin", "changeme")
 iex> FritzApi.Client.get_device_list_infos()
-{:ok, [%{
+{:ok, [%FritzApi.Actor{
   ain: "687690315761",
   fwversion: "03.87",
   id: 21,
@@ -58,30 +58,12 @@ iex> FritzApi.Client.start("admin", "changeme", [base: "https://192.168.0.1", ss
 
 ### Starting in Supervision Tree
 
-With Elixir > v1.5:
-
 ```elixir
 # in your application.ex
 
 def start(_type, _args) do
   children = [
     {FritzApi.Client, username: @username, password: @password, opts: @opts}
-  ]
-
-  # ...
-end
-```
-
-Alternatively:
-
-```elixir
-def start(_type, _args) do
-  import Supervisor.Spec
-
-  children = [
-    worker(FritzApi.Client, [[username: @username,
-                              password: @password,
-                              opts: @opts]], [function: :start])
   ]
 
   # ...

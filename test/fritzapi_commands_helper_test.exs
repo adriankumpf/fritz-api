@@ -24,6 +24,4 @@ defmodule FritzApi.Commands.HelperTest do
     assert Helper.parse_list("") === []
     assert Helper.parse_list("1,2,3,4") === ["1", "2", "3", "4"]
   end
-
 end
-

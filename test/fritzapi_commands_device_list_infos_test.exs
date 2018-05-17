@@ -38,13 +38,19 @@ defmodule FritzApi.Commands.DeviceListInfosTest do
     devicelist = DeviceListInfos.parse_device_list(xml)
 
     assert devicelist === [
-      %Actor{ain: "012340000123", fwversion: "03.87", id: 51,
-        manufacturer: "AVM", name: "Smart Plug",
-        powermeter: %{energy: 89.418, power: 0.0}, present: true,
-        productname: "FRITZ!DECT 200",
-        switch: %{devicelock: false, lock: false, mode: :manual, state: false},
-        temperature: %{celsius: 20.5, offset: 0.0}},
-    ]
+             %Actor{
+               ain: "012340000123",
+               fwversion: "03.87",
+               id: 51,
+               manufacturer: "AVM",
+               name: "Smart Plug",
+               powermeter: %{energy: 89.418, power: 0.0},
+               present: true,
+               productname: "FRITZ!DECT 200",
+               switch: %{devicelock: false, lock: false, mode: :manual, state: false},
+               temperature: %{celsius: 20.5, offset: 0.0}
+             }
+           ]
   end
 
   test "parses devicelist xml if properties are undefined" do
@@ -78,16 +84,21 @@ defmodule FritzApi.Commands.DeviceListInfosTest do
     </devicelist>
     """
 
-   devicelist = DeviceListInfos.parse_device_list(xml)
+    devicelist = DeviceListInfos.parse_device_list(xml)
 
     assert devicelist === [
-      %Actor{ain: "012340000123", fwversion: "03.87", id: 51,
-        manufacturer: "AVM", name: "Smart Plug",
-        powermeter: %{energy: nil, power: nil}, present: nil,
-        productname: "FRITZ!DECT 200",
-        switch: %{devicelock: nil, lock: nil, mode: nil, state: nil},
-        temperature: %{celsius: nil, offset: nil}},
-    ]
+             %Actor{
+               ain: "012340000123",
+               fwversion: "03.87",
+               id: 51,
+               manufacturer: "AVM",
+               name: "Smart Plug",
+               powermeter: %{energy: nil, power: nil},
+               present: nil,
+               productname: "FRITZ!DECT 200",
+               switch: %{devicelock: nil, lock: nil, mode: nil, state: nil},
+               temperature: %{celsius: nil, offset: nil}
+             }
+           ]
   end
 end
-

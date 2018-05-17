@@ -43,34 +43,60 @@ defmodule FritzApi.Actor do
 
   """
 
-  defstruct [:fwversion, :id, :ain, :manufacturer, :productname, :present,
-             :name, :switch, :powermeter, :temperature, :alert]
+  defstruct [
+    :fwversion,
+    :id,
+    :ain,
+    :manufacturer,
+    :productname,
+    :present,
+    :name,
+    :switch,
+    :powermeter,
+    :temperature,
+    :alert
+  ]
 
   @type t :: %__MODULE__{
-    fwversion: String.t,
-    id: integer,
-    ain: String.t,
-    manufacturer: String.t,
-    productname: String.t,
-    name: String.t,
-    present: boolean | nil,
-    switch: (none | [%{
-      state: boolean | nil,
-      mode: String.t | nil,
-      lock: boolean | nil,
-      devicelock: boolean | nil,
-    }]),
-    powermeter: (none | [%{
-      power: float | nil,
-      energy: float| nil,
-    }]),
-    temperature: (none | [%{
-      celsius: float | nil,
-      offset: float |nil,
-    }]),
-    alert: (none | [%{
-      state: boolean | nil,
-    }])
-  }
-
+          fwversion: String.t(),
+          id: integer,
+          ain: String.t(),
+          manufacturer: String.t(),
+          productname: String.t(),
+          name: String.t(),
+          present: boolean | nil,
+          switch:
+            none
+            | [
+                %{
+                  state: boolean | nil,
+                  mode: String.t() | nil,
+                  lock: boolean | nil,
+                  devicelock: boolean | nil
+                }
+              ],
+          powermeter:
+            none
+            | [
+                %{
+                  power: float | nil,
+                  energy: float | nil
+                }
+              ],
+          temperature:
+            none
+            | [
+                %{
+                  celsius: float | nil,
+                  offset: float | nil
+                }
+              ],
+          alert:
+            none
+            | [
+                %{
+                  state: boolean | nil
+                }
+              ]
+        }
 end

@@ -1,7 +1,7 @@
 defmodule FritzApi.SessionId.Crypto do
   @moduledoc false
 
-  @spec md5(String.t) :: String.t
+  @spec md5(String.t()) :: String.t()
   def md5(data) do
     data
     |> :unicode.characters_to_binary(:utf8, {:utf16, :little})

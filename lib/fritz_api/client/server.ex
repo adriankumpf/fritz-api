@@ -18,5 +18,4 @@ defmodule FritzApi.Client.Server do
     {response, new_state} = Impl.executte_command(cmd, nil, state)
     {:reply, response, new_state}
   end
-
 end
