@@ -25,7 +25,7 @@ defmodule FritzApi.Mixfile do
   defp deps do
     [
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:httpoison, "~> 1.0"},
       {:sweet_xml, "~> 0.6.5"}
