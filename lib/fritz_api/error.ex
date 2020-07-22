@@ -4,8 +4,8 @@ defmodule FritzApi.Error do
   """
 
   @type t :: %__MODULE__{
-          reason: atom() | String.t(),
-          env: Tesla.Env.t()
+          reason: term,
+          env: Tesla.Env.t() | nil
         }
 
   defexception [:reason, :env]

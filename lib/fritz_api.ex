@@ -139,7 +139,7 @@ defmodule FritzApi do
       {:ok, :on}
 
   """
-  @spec get_switch_state(String.t(), ain) :: {:error, Error.t()} | {:ok, :unkown | :on | :off}
+  @spec get_switch_state(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unkown | :on | :off}
   def get_switch_state(%Client{} = client, ain) do
     case execute_command(client, "getswitchstate", ain: ain) do
       {:ok, "1"} -> {:ok, :on}
@@ -248,6 +248,7 @@ defmodule FritzApi do
          {:ok, session_id} <- login(client, username, challenge_resp) do
       {:ok, session_id}
     else
+      {:error, {:login_failed, [block_time: _secs]} = reason} -> {:error, %Error{reason: reason}}
       {:error, {:already_logged_in, session_id}} -> {:ok, session_id}
       {:error, reason} -> {:error, reason}
     end
@@ -255,7 +256,7 @@ defmodule FritzApi do
 
   ## Private
 
-  @spec get(Client.t(), String.t(), Keyword.t()) :: {:ok, any()} | {:error, Error.t()}
+  @spec get(Client.t(), String.t(), Keyword.t()) :: {:error, Error.t()} | {:ok, term}
   defp get(%Client{tesla_client: client}, path, opts \\ []) do
     {headers, opts} = Keyword.pop(opts, :headers, [])
     {query, opts} = Keyword.pop(opts, :query, [])

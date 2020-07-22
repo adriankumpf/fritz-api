@@ -3,13 +3,13 @@ defmodule FritzApi.Client do
   A FritzApi API Client
   """
 
-  alias FritzApi.{Auth, Error}
+  alias FritzApi.Error
 
-  @opaque t :: %__MODULE__{
-            tesla_client: Tesla.Client.t(),
-            base_url: String.t(),
-            session_id: Auth.session_id()
-          }
+  @type t :: %__MODULE__{
+          tesla_client: Tesla.Client.t(),
+          base_url: String.t(),
+          session_id: FritzApi.session_id()
+        }
 
   @enforce_keys [:tesla_client, :base_url]
   defstruct [:tesla_client, :base_url, :session_id]
