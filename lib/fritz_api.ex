@@ -241,6 +241,114 @@ defmodule FritzApi do
     end
   end
 
+  @doc """
+  Get the target temperature (Celsius) currently set for the radiator
+  controller.
+
+  ## Example
+
+      iex> FritzApi.get_hkr_target_temperature(client, "687690315761")
+      {:ok, 23.5}
+
+  """
+  @spec get_hkr_target_temperature(Client.t(), ain) ::
+          {:error, Error.t()} | {:ok, :unkown | :on | :off | float}
+  def get_hkr_target_temperature(%Client{} = client, ain) do
+    case execute_command(client, "gethkrtsoll", ain: ain) do
+      {:ok, value} when is_binary(value) -> {:ok, from_hkr_temp(value)}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
+  Get the comfort temperature (Celsius) set for time switching of the radiator
+  controller.
+
+  ## Example
+
+      iex> FritzApi.get_hkr_comfort_temperature(client, "687690315761")
+      {:ok, 23.5}
+
+  """
+  @spec get_hkr_comfort_temperature(Client.t(), ain) ::
+          {:error, Error.t()} | {:ok, :unkown | :on | :off | float}
+  def get_hkr_comfort_temperature(%Client{} = client, ain) do
+    case execute_command(client, "gethkrkomfort", ain: ain) do
+      {:ok, value} when is_binary(value) -> {:ok, from_hkr_temp(value)}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
+  Get the economy temperature (Celsius) set for time switching of the radiator
+  controller.
+
+  ## Example
+
+      iex> FritzApi.get_hkr_economy_temperature(client, "687690315761")
+      {:ok, 23.5}
+
+  """
+  @spec get_hkr_economy_temperature(Client.t(), ain) ::
+          {:error, Error.t()} | {:ok, :unkown | :on | :off | float}
+  def get_hkr_economy_temperature(%Client{} = client, ain) do
+    case execute_command(client, "gethkrabsenk", ain: ain) do
+      {:ok, value} when is_binary(value) -> {:ok, from_hkr_temp(value)}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
+  Set the target temperature (Celsius) of the radiator controller.
+
+  ## Example
+
+      iex> FritzApi.set_hkr_target_temperature(client, "687690315761", 21.5)
+      {:ok, 23.5}
+
+  """
+  @spec set_hkr_target_temperature(Client.t(), ain, float) :: {:error, Error.t()} | :ok
+  def set_hkr_target_temperature(%Client{} = client, ain, temp) do
+    case execute_command(client, "sethkrtsoll", ain: ain, param: to_hkr_temp(temp)) do
+      {:ok, _} -> :ok
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
+  Enabele the target temperature of the radiator controller.
+
+  ## Example
+
+      iex> FritzApi.enable_hkr_target_temperature(client, "687690315761")
+      {:ok, 23.5}
+
+  """
+  @spec enable_hkr_target_temperature(Client.t(), ain) :: {:error, Error.t()} | :ok
+  def enable_hkr_target_temperature(%Client{} = client, ain) do
+    case execute_command(client, "sethkrtsoll", ain: ain, param: 254) do
+      {:ok, _} -> :ok
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
+  Disable the target temperature of the radiator controller.
+
+  ## Example
+
+      iex> FritzApi.disable_hkr_target_temperature(client, "687690315761")
+      {:ok, 23.5}
+
+  """
+  @spec disable_hkr_target_temperature(Client.t(), ain) :: {:error, Error.t()} | :ok
+  def disable_hkr_target_temperature(%Client{} = client, ain) do
+    case execute_command(client, "sethkrtsoll", ain: ain, param: 253) do
+      {:ok, _} -> :ok
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
   @spec get_session_id(Client.t(), useranme, password) :: {:ok, session_id} | {:error, Error.t()}
   def get_session_id(%Client{} = client, username, password)
       when is_binary(username) and is_binary(password) do
@@ -331,12 +439,21 @@ defmodule FritzApi do
     get(client, "/webservices/homeautoswitch.lua", query: [switchcmd: cmd, sid: sid] ++ opts)
   end
 
-  defp to_float(value, dec_places) when is_number(dec_places) and dec_places > 0 do
-    with true <- is_binary(value),
-         {int, ""} <- Integer.parse(value) do
-      int / :math.pow(10, dec_places)
-    else
-      _ -> nil
+  defp to_float(value, dec_places)
+       when is_binary(value) and is_number(dec_places) and dec_places > 0 do
+    {int, ""} = Integer.parse(value)
+    int / :math.pow(10, dec_places)
+  end
+
+  defp from_hkr_temp(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {253, ""} -> :off
+      {254, ""} -> :on
+      {int, ""} when int in 16..56 -> int / 2
     end
+  end
+
+  defp to_hkr_temp(temp) when is_number(temp) do
+    round(temp * 2) |> min(56) |> max(16)
   end
 end
