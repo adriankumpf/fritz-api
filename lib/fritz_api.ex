@@ -404,7 +404,8 @@ defmodule FritzApi do
 
   defp get_challenge_response(%Client{} = client, password) do
     case get(client, "/login_sid.lua") do
-      {:ok, %{"SessionInfo" => %{"SID" => "0000000000000000", "Challenge" => challenge}}} ->
+      {:ok, %{"SessionInfo" => %{"SID" => "0000000000000000", "Challenge" => challenge}}}
+      when is_binary(challenge) ->
         {:ok, "#{challenge}-#{md5("#{challenge}-#{password}")}"}
 
       {:ok, %{"SessionInfo" => %{"SID" => session_id}}} ->
