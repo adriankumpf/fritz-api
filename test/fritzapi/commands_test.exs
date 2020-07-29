@@ -1,4 +1,4 @@
-defmodule FritzApi.Commands.DeviceListInfosTest do
+defmodule FritzApi.CommandsTest do
   use FritzApi.Case, async: true
 
   describe "get_device_list_infos/1" do
@@ -207,6 +207,70 @@ defmodule FritzApi.Commands.DeviceListInfosTest do
                switch: %Switch{devicelock: nil, lock: nil, mode: nil, state: nil},
                temperature: %Temperature{celsius: nil, offset: nil}
              }
+    end
+  end
+
+  describe "get_switch_list/1" do
+    @tag logged_in: true
+    test "returns the AINs of all known swithces", %{client: client} do
+      mock(fn
+        %Tesla.Env{
+          method: :get,
+          url: "http://fritz.box/webservices/homeautoswitch.lua",
+          query: [switchcmd: "getswitchlist", sid: "$session_id"]
+        } ->
+          text("000,111,222,333\n", headers: [{"content-type", "text/plain; charset=utf-8"}])
+      end)
+
+      assert {:ok, ["000", "111", "222", "333"]} = FritzApi.get_switch_list(client)
+    end
+  end
+
+  describe "set_switch_*/2" do
+    @tag logged_in: true
+    test "turns on a switch", %{client: client} do
+      mock(fn
+        %Tesla.Env{
+          method: :get,
+          url: "http://fritz.box/webservices/homeautoswitch.lua",
+          query: [switchcmd: "setswitchon", sid: "$session_id", ain: "087610000434"]
+        } ->
+          text("1")
+      end)
+
+      assert :ok = FritzApi.set_switch_on(client, "087610000434")
+    end
+
+    @tag logged_in: true
+    test "turns off a switch", %{client: client} do
+      mock(fn
+        %Tesla.Env{
+          method: :get,
+          url: "http://fritz.box/webservices/homeautoswitch.lua",
+          query: [switchcmd: "setswitchoff", sid: "$session_id", ain: "087610000434"]
+        } ->
+          text("0")
+      end)
+
+      assert :ok = FritzApi.set_switch_off(client, "087610000434")
+    end
+
+    @tag logged_in: true
+    test "toggles a switch", %{client: client} do
+      mock(fn
+        %Tesla.Env{
+          method: :get,
+          url: "http://fritz.box/webservices/homeautoswitch.lua",
+          query: [switchcmd: "setswitchtoggle", sid: "$session_id", ain: ain]
+        } ->
+          case ain do
+            "087610000434" -> text("0")
+            "087610000435" -> text("1")
+          end
+      end)
+
+      assert {:ok, :off} = FritzApi.set_switch_toggle(client, "087610000434")
+      assert {:ok, :on} = FritzApi.set_switch_toggle(client, "087610000435")
     end
   end
 end

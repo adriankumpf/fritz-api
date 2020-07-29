@@ -74,8 +74,11 @@ defmodule FritzApi do
   @spec get_switch_list(Client.t()) :: {:error, Error.t()} | {:ok, [ain]}
   def get_switch_list(%Client{} = client) do
     case execute_command(client, "getswitchlist") do
-      {:ok, ains} when is_binary(ains) -> ains |> String.trim_trailing() |> String.split(",")
-      {:error, reason} -> {:error, reason}
+      {:ok, ains} when is_binary(ains) ->
+        {:ok, ains |> String.trim_trailing() |> String.split(",")}
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

@@ -20,9 +20,8 @@ defmodule FritzApi.Middleware.DecodeXML do
 
   defp decodable_content_type?(env) do
     case Tesla.get_header(env, "content-type") do
-      "application/xml" <> _ -> true
-      "text/xml" <> _ -> true
-      nil -> false
+      xml when xml in ["application/xml", "text/xml"] -> true
+      _ -> false
     end
   end
 end
