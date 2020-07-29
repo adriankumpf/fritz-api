@@ -51,8 +51,11 @@ defmodule FritzApi do
   @spec get_device_list_infos(Client.t()) :: {:error, Error.t()} | {:ok, [Actor.t()]}
   def get_device_list_infos(%Client{} = client) do
     case execute_command(client, "getdevicelistinfos") do
-      {:ok, %{"devicelist" => %{"#content" => %{"device" => devices}}}} ->
+      {:ok, %{"devicelist" => %{"#content" => %{"device" => devices}}}} when is_list(devices) ->
         {:ok, Enum.map(devices, &Actor.into/1)}
+
+      {:ok, %{"devicelist" => %{"#content" => %{"device" => device}}}} when is_map(device) ->
+        {:ok, [Actor.into(device)]}
 
       {:error, reason} ->
         {:error, reason}

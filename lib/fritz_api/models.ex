@@ -23,8 +23,20 @@ defmodule FritzApi.Model do
 
       defp to_boolean("1"), do: true
       defp to_boolean("0"), do: false
+      defp to_boolean(nil), do: nil
       defp to_boolean(%{}), do: nil
 
+      defp to_integer(nil), do: nil
+      defp to_integer(%{}), do: nil
+
+      defp to_integer(str) do
+        case Integer.parse(str) do
+          {int, ""} -> int
+          _ -> nil
+        end
+      end
+
+      defp to_float(nil, _dec_places), do: nil
       defp to_float(%{}, _dec_places), do: nil
 
       defp to_float(string, dec_places) do
@@ -97,6 +109,9 @@ defmodule FritzApi.Actor do
 
         {"-identifier", ain} ->
           [{:ain, String.replace(ain, " ", "")}]
+
+        {"-id", id} ->
+          [{:id, to_integer(id)}]
 
         {"-" <> key, value} ->
           [{to_atom(key), value}]
@@ -183,11 +198,11 @@ defmodule FritzApi.Powermeter do
   defstruct [:energy, :power, :voltage]
 
   @impl true
-  def into(%{"energy" => energy, "power" => power, "voltage" => voltage}) do
+  def into(attrs) do
     %__MODULE__{
-      energy: to_float(energy, 3),
-      power: to_float(power, 2),
-      voltage: to_float(voltage, 3)
+      energy: to_float(attrs["energy"], 3),
+      power: to_float(attrs["power"], 2),
+      voltage: to_float(attrs["voltage"], 3)
     }
   end
 end
