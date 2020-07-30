@@ -273,4 +273,118 @@ defmodule FritzApi.CommandsTest do
       assert {:ok, :on} = FritzApi.set_switch_toggle(client, "087610000435")
     end
   end
+
+  @tag logged_in: true
+  test "get_switch_state/2", %{client: client} do
+    mock(fn
+      %Tesla.Env{
+        method: :get,
+        url: "http://fritz.box/webservices/homeautoswitch.lua",
+        query: [switchcmd: "getswitchstate", sid: "$session_id", ain: ain]
+      } ->
+        case ain do
+          "087610000434" -> text("0")
+          "087610000435" -> text("1")
+          "087610000436" -> text("inval")
+        end
+    end)
+
+    assert {:ok, :off} = FritzApi.get_switch_state(client, "087610000434")
+    assert {:ok, :on} = FritzApi.get_switch_state(client, "087610000435")
+    assert {:ok, :unkown} = FritzApi.get_switch_state(client, "087610000436")
+  end
+
+  @tag logged_in: true
+  test "get_switch_present/2", %{client: client} do
+    mock(fn
+      %Tesla.Env{
+        method: :get,
+        url: "http://fritz.box/webservices/homeautoswitch.lua",
+        query: [switchcmd: "getswitchpresent", sid: "$session_id", ain: ain]
+      } ->
+        case ain do
+          "087610000434" -> text("0")
+          "087610000435" -> text("1")
+        end
+    end)
+
+    assert {:ok, false} = FritzApi.get_switch_present(client, "087610000434")
+    assert {:ok, true} = FritzApi.get_switch_present(client, "087610000435")
+  end
+
+  @tag logged_in: true
+  test "get_switch_power/2", %{client: client} do
+    mock(fn
+      %Tesla.Env{
+        method: :get,
+        url: "http://fritz.box/webservices/homeautoswitch.lua",
+        query: [switchcmd: "getswitchpower", sid: "$session_id", ain: ain]
+      } ->
+        case ain do
+          "087610000434" -> text("0")
+          "087610000435" -> text("3500000")
+          "087610000436" -> text("inval")
+        end
+    end)
+
+    assert {:ok, 0.0} = FritzApi.get_switch_power(client, "087610000434")
+    assert {:ok, 3500.0} = FritzApi.get_switch_power(client, "087610000435")
+    assert {:ok, :unkown} = FritzApi.get_switch_power(client, "087610000436")
+  end
+
+  @tag logged_in: true
+  test "get_switch_energy/2", %{client: client} do
+    mock(fn
+      %Tesla.Env{
+        method: :get,
+        url: "http://fritz.box/webservices/homeautoswitch.lua",
+        query: [switchcmd: "getswitchenergy", sid: "$session_id", ain: ain]
+      } ->
+        case ain do
+          "087610000434" -> text("0")
+          "087610000435" -> text("3500000")
+          "087610000436" -> text("inval")
+        end
+    end)
+
+    assert {:ok, 0.0} = FritzApi.get_switch_energy(client, "087610000434")
+    assert {:ok, 3500.0} = FritzApi.get_switch_energy(client, "087610000435")
+    assert {:ok, :unkown} = FritzApi.get_switch_energy(client, "087610000436")
+  end
+
+  @tag logged_in: true
+  test "get_switch_name/2", %{client: client} do
+    mock(fn
+      %Tesla.Env{
+        method: :get,
+        url: "http://fritz.box/webservices/homeautoswitch.lua",
+        query: [switchcmd: "getswitchname", sid: "$session_id", ain: "087610000434"]
+      } ->
+        text("Smart Plug")
+    end)
+
+    assert {:ok, "Smart Plug"} = FritzApi.get_switch_name(client, "087610000434")
+  end
+
+  @tag logged_in: true
+  test "get_temperature/2", %{client: client} do
+    mock(fn
+      %Tesla.Env{
+        method: :get,
+        url: "http://fritz.box/webservices/homeautoswitch.lua",
+        query: [switchcmd: "gettemperature", sid: "$session_id", ain: ain]
+      } ->
+        case ain do
+          "087610000434" -> text("0")
+          "087610000435" -> text("200")
+          "087610000436" -> text("-025")
+          "087610000437" -> text("inval")
+        end
+    end)
+
+    assert {:ok, 0.0} = FritzApi.get_temperature(client, "087610000434")
+    assert {:ok, 20.0} = FritzApi.get_temperature(client, "087610000435")
+    assert {:ok, -2.5} = FritzApi.get_temperature(client, "087610000436")
+    assert {:ok, :unkown} = FritzApi.get_temperature(client, "087610000437")
+  end
 end
