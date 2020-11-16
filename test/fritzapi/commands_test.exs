@@ -291,7 +291,7 @@ defmodule FritzApi.CommandsTest do
 
     assert {:ok, :off} = FritzApi.get_switch_state(client, "087610000434")
     assert {:ok, :on} = FritzApi.get_switch_state(client, "087610000435")
-    assert {:ok, :unkown} = FritzApi.get_switch_state(client, "087610000436")
+    assert {:ok, :unknown} = FritzApi.get_switch_state(client, "087610000436")
   end
 
   @tag logged_in: true
@@ -329,7 +329,7 @@ defmodule FritzApi.CommandsTest do
 
     assert {:ok, 0.0} = FritzApi.get_switch_power(client, "087610000434")
     assert {:ok, 3500.0} = FritzApi.get_switch_power(client, "087610000435")
-    assert {:ok, :unkown} = FritzApi.get_switch_power(client, "087610000436")
+    assert {:ok, :unknown} = FritzApi.get_switch_power(client, "087610000436")
   end
 
   @tag logged_in: true
@@ -349,7 +349,7 @@ defmodule FritzApi.CommandsTest do
 
     assert {:ok, 0.0} = FritzApi.get_switch_energy(client, "087610000434")
     assert {:ok, 3500.0} = FritzApi.get_switch_energy(client, "087610000435")
-    assert {:ok, :unkown} = FritzApi.get_switch_energy(client, "087610000436")
+    assert {:ok, :unknown} = FritzApi.get_switch_energy(client, "087610000436")
   end
 
   @tag logged_in: true
@@ -385,7 +385,7 @@ defmodule FritzApi.CommandsTest do
     assert {:ok, 0.0} = FritzApi.get_temperature(client, "087610000434")
     assert {:ok, 20.0} = FritzApi.get_temperature(client, "087610000435")
     assert {:ok, -2.5} = FritzApi.get_temperature(client, "087610000436")
-    assert {:ok, :unkown} = FritzApi.get_temperature(client, "087610000437")
+    assert {:ok, :unknown} = FritzApi.get_temperature(client, "087610000437")
   end
 
   describe "hkr" do

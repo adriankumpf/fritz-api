@@ -137,7 +137,7 @@ defmodule FritzApi do
   @doc """
   Get the current switching state.
 
-  Returns `{:ok, :unkown}` if the state is unkown.
+  Returns `{:ok, :unknown}` if the state is unknown.
 
   ## Example
 
@@ -145,12 +145,12 @@ defmodule FritzApi do
       {:ok, :on}
 
   """
-  @spec get_switch_state(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unkown | :on | :off}
+  @spec get_switch_state(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unknown | :on | :off}
   def get_switch_state(%Client{} = client, ain) do
     case execute_command(client, "getswitchstate", ain: ain) do
       {:ok, "1"} -> {:ok, :on}
       {:ok, "0"} -> {:ok, :off}
-      {:ok, "inval"} -> {:ok, :unkown}
+      {:ok, "inval"} -> {:ok, :unknown}
       {:error, reason} -> {:error, reason}
     end
   end
@@ -176,7 +176,7 @@ defmodule FritzApi do
   @doc """
   Get the current power consumption (Watt) of the switch.
 
-  Returns `{:ok, :unkown}` if the state is unkown.
+  Returns `{:ok, :unknown}` if the state is unknown.
 
   ## Example
 
@@ -184,10 +184,10 @@ defmodule FritzApi do
       {:ok, 0.0}
 
   """
-  @spec get_switch_power(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unkown | float}
+  @spec get_switch_power(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unknown | float}
   def get_switch_power(%Client{} = client, ain) do
     case execute_command(client, "getswitchpower", ain: ain) do
-      {:ok, "inval"} -> {:ok, :unkown}
+      {:ok, "inval"} -> {:ok, :unknown}
       {:ok, power} when is_binary(power) -> {:ok, to_float(power, 3)}
       {:error, reason} -> {:error, reason}
     end
@@ -196,7 +196,7 @@ defmodule FritzApi do
   @doc """
   Get the total energy usage (kWh) of the switch.
 
-  Returns `{:ok, :unkown}` if the state is unkown.
+  Returns `{:ok, :unknown}` if the state is unknown.
 
   ## Example
 
@@ -204,10 +204,10 @@ defmodule FritzApi do
       {:ok, 0.475}
 
   """
-  @spec get_switch_energy(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unkown | float}
+  @spec get_switch_energy(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unknown | float}
   def get_switch_energy(%Client{} = client, ain) do
     case execute_command(client, "getswitchenergy", ain: ain) do
-      {:ok, "inval"} -> {:ok, :unkown}
+      {:ok, "inval"} -> {:ok, :unknown}
       {:ok, energy} when is_binary(energy) -> {:ok, to_float(energy, 3)}
       {:error, reason} -> {:error, reason}
     end
@@ -230,7 +230,7 @@ defmodule FritzApi do
   @doc """
   Get the last measured temperature (Celsius) of the actor.
 
-  Returns `{:ok, :unkown}` if the temperature could not be measured.
+  Returns `{:ok, :unknown}` if the temperature could not be measured.
 
   ## Example
 
@@ -238,10 +238,10 @@ defmodule FritzApi do
       {:ok, 23.5}
 
   """
-  @spec get_temperature(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unkown | float}
+  @spec get_temperature(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unknown | float}
   def get_temperature(%Client{} = client, ain) do
     case execute_command(client, "gettemperature", ain: ain) do
-      {:ok, "inval"} -> {:ok, :unkown}
+      {:ok, "inval"} -> {:ok, :unknown}
       {:ok, temp} when is_binary(temp) -> {:ok, to_float(temp, 1)}
       {:error, reason} -> {:error, reason}
     end
@@ -258,7 +258,7 @@ defmodule FritzApi do
 
   """
   @spec get_hkr_target_temperature(Client.t(), ain) ::
-          {:error, Error.t()} | {:ok, :unkown | :on | :off | float}
+          {:error, Error.t()} | {:ok, :unknown | :on | :off | float}
   def get_hkr_target_temperature(%Client{} = client, ain) do
     case execute_command(client, "gethkrtsoll", ain: ain) do
       {:ok, value} when is_binary(value) -> {:ok, from_hkr_temp(value)}
@@ -277,7 +277,7 @@ defmodule FritzApi do
 
   """
   @spec get_hkr_comfort_temperature(Client.t(), ain) ::
-          {:error, Error.t()} | {:ok, :unkown | :on | :off | float}
+          {:error, Error.t()} | {:ok, :unknown | :on | :off | float}
   def get_hkr_comfort_temperature(%Client{} = client, ain) do
     case execute_command(client, "gethkrkomfort", ain: ain) do
       {:ok, value} when is_binary(value) -> {:ok, from_hkr_temp(value)}
@@ -296,7 +296,7 @@ defmodule FritzApi do
 
   """
   @spec get_hkr_economy_temperature(Client.t(), ain) ::
-          {:error, Error.t()} | {:ok, :unkown | :on | :off | float}
+          {:error, Error.t()} | {:ok, :unknown | :on | :off | float}
   def get_hkr_economy_temperature(%Client{} = client, ain) do
     case execute_command(client, "gethkrabsenk", ain: ain) do
       {:ok, value} when is_binary(value) -> {:ok, from_hkr_temp(value)}
@@ -317,7 +317,7 @@ defmodule FritzApi do
   def set_hkr_target_temperature(%Client{} = client, ain, temp)
       when is_number(temp) and (temp >= 8.0 and temp <= 28.0) do
     case execute_command(client, "sethkrtsoll", ain: ain, param: to_hkr_temp(temp)) do
-      {:ok, _unkown_response} -> :ok
+      {:ok, _unknown_response} -> :ok
       {:error, reason} -> {:error, reason}
     end
   end
@@ -405,7 +405,7 @@ defmodule FritzApi do
         {:error, %Error{reason: :internal_error, env: env}}
 
       {:ok, %Tesla.Env{} = env} ->
-        {:error, %Error{reason: :unkown, env: env}}
+        {:error, %Error{reason: :unknown, env: env}}
 
       {:error, reason} ->
         {:error, %Error{reason: reason}}

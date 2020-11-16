@@ -4,4 +4,4 @@
 
 ### Breaking Changes
 
-- `get_switch_state` returns `:on`, `:off` or `:unkown` instead of a boolean
+- `get_switch_state` returns `:on`, `:off` or `:unknown` instead of a boolean
