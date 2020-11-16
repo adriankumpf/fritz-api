@@ -14,6 +14,7 @@ Fritz!Box Home Automation API Client for Elixir
 ```elixir
 iex> {:ok, client} = FritzApi.Client.new()
 ...>                 |> FritzApi.Client.login("admin", "changeme")
+
 iex> FritzApi.get_device_list_infos(client)
 {:ok, [%FritzApi.Actor{
   ain: "687690315761",
@@ -35,16 +36,13 @@ iex> FritzApi.get_device_list_infos(client)
     offset: 0.0
   }
 }]}
+
 iex> FritzApi.set_switch_off(client, "687690315761")
 :ok
+
 iex> FritzApi.get_temperature(client, "687690315761")
 {:ok, 23.5}
 ```
-
-## References
-
-- [AHA HTTP Interface](https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/AHA-HTTP-Interface.pdf)
-- [AVM Technical Note - Session ID](https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/AVM_Technical_Note_-_Session_ID.pdf)
 
 <!-- MDOC !-->
 
@@ -55,8 +53,8 @@ Add `fritz_api` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:fritz_api, "~> 0.4"},
-    {:hackney, "~> 1.15"}
+    {:fritz_api, "~> 2.0"},
+    {:hackney, "~> 1.16"}
   ]
 end
 ```
@@ -64,3 +62,8 @@ end
 By default, `fritz_api` uses [hackney](https://github.com/benoitc/hackney) (via `Tesla.Adapter.Hackney`). Add `hackney` to the list of dependencies too if you don't want to use another HTTP adapter (see [Tesla Adapters](https://github.com/teamon/tesla#adapters) to find all available adapters and [`FritzApi.Client.new/1`](https://hexdocs.pm/fritz_api/FritzApi.Client.html#new/1) on how to configure another adapter).
 
 The docs can be found at [hexdocs.pm/fritz_api](https://hexdocs.pm/fritz_api).
+
+## References
+
+- [AHA HTTP Interface](https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/AHA-HTTP-Interface.pdf)
+- [AVM Technical Note - Session ID](https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/AVM_Technical_Note_-_Session_ID.pdf)
