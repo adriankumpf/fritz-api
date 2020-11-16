@@ -377,6 +377,9 @@ defmodule FritzApi do
     {query, opts} = Keyword.pop(opts, :query, [])
 
     case Tesla.request(client, method: :get, url: path, query: query, headers: headers, opts: opts) do
+      {:ok, %Tesla.Env{status: 200, body: body}} when is_binary(body) ->
+        {:ok, String.trim_trailing(body, "\n")}
+
       {:ok, %Tesla.Env{status: 200, body: body}} ->
         {:ok, body}
 

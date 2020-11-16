@@ -235,7 +235,7 @@ defmodule FritzApi.CommandsTest do
           url: "http://fritz.box/webservices/homeautoswitch.lua",
           query: [switchcmd: "setswitchon", sid: "$session_id", ain: "087610000434"]
         } ->
-          text("1")
+          text("1\n")
       end)
 
       assert :ok = FritzApi.set_switch_on(client, "087610000434")
@@ -249,7 +249,7 @@ defmodule FritzApi.CommandsTest do
           url: "http://fritz.box/webservices/homeautoswitch.lua",
           query: [switchcmd: "setswitchoff", sid: "$session_id", ain: "087610000434"]
         } ->
-          text("0")
+          text("0\n")
       end)
 
       assert :ok = FritzApi.set_switch_off(client, "087610000434")
@@ -264,8 +264,8 @@ defmodule FritzApi.CommandsTest do
           query: [switchcmd: "setswitchtoggle", sid: "$session_id", ain: ain]
         } ->
           case ain do
-            "087610000434" -> text("0")
-            "087610000435" -> text("1")
+            "087610000434" -> text("0\n")
+            "087610000435" -> text("1\n")
           end
       end)
 
@@ -283,9 +283,9 @@ defmodule FritzApi.CommandsTest do
         query: [switchcmd: "getswitchstate", sid: "$session_id", ain: ain]
       } ->
         case ain do
-          "087610000434" -> text("0")
-          "087610000435" -> text("1")
-          "087610000436" -> text("inval")
+          "087610000434" -> text("0\n")
+          "087610000435" -> text("1\n")
+          "087610000436" -> text("inval\n")
         end
     end)
 
