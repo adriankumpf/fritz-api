@@ -313,10 +313,11 @@ defmodule FritzApi do
       {:ok, 23.5}
 
   """
-  @spec set_hkr_target_temperature(Client.t(), ain, float) :: {:error, Error.t()} | :ok
-  def set_hkr_target_temperature(%Client{} = client, ain, temp) do
+  @spec set_hkr_target_temperature(Client.t(), ain, 8..28) :: {:error, Error.t()} | :ok
+  def set_hkr_target_temperature(%Client{} = client, ain, temp)
+      when is_number(temp) and (temp >= 8.0 and temp <= 28.0) do
     case execute_command(client, "sethkrtsoll", ain: ain, param: to_hkr_temp(temp)) do
-      {:ok, _} -> :ok
+      {:ok, _unkown_response} -> :ok
       {:error, reason} -> {:error, reason}
     end
   end

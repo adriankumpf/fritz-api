@@ -387,4 +387,122 @@ defmodule FritzApi.CommandsTest do
     assert {:ok, -2.5} = FritzApi.get_temperature(client, "087610000436")
     assert {:ok, :unkown} = FritzApi.get_temperature(client, "087610000437")
   end
+
+  describe "hkr" do
+    @tag logged_in: true
+    test "get_hkr_target_temperature/2", %{client: client} do
+      mock(fn
+        %Tesla.Env{
+          method: :get,
+          url: "http://fritz.box/webservices/homeautoswitch.lua",
+          query: [switchcmd: "gethkrtsoll", sid: "$session_id", ain: ain]
+        } ->
+          case ain do
+            "087610000434" -> text("16")
+            "087610000435" -> text("56")
+            "087610000436" -> text("253")
+            "087610000437" -> text("254")
+          end
+      end)
+
+      assert {:ok, 8.0} = FritzApi.get_hkr_target_temperature(client, "087610000434")
+      assert {:ok, 28.0} = FritzApi.get_hkr_target_temperature(client, "087610000435")
+      assert {:ok, :off} = FritzApi.get_hkr_target_temperature(client, "087610000436")
+      assert {:ok, :on} = FritzApi.get_hkr_target_temperature(client, "087610000437")
+    end
+
+    @tag logged_in: true
+    test "get_hkr_comfort_temperature/2", %{client: client} do
+      mock(fn
+        %Tesla.Env{
+          method: :get,
+          url: "http://fritz.box/webservices/homeautoswitch.lua",
+          query: [switchcmd: "gethkrkomfort", sid: "$session_id", ain: ain]
+        } ->
+          case ain do
+            "087610000434" -> text("16")
+            "087610000435" -> text("56")
+            "087610000436" -> text("253")
+            "087610000437" -> text("254")
+          end
+      end)
+
+      assert {:ok, 8.0} = FritzApi.get_hkr_comfort_temperature(client, "087610000434")
+      assert {:ok, 28.0} = FritzApi.get_hkr_comfort_temperature(client, "087610000435")
+      assert {:ok, :off} = FritzApi.get_hkr_comfort_temperature(client, "087610000436")
+      assert {:ok, :on} = FritzApi.get_hkr_comfort_temperature(client, "087610000437")
+    end
+
+    @tag logged_in: true
+    test "get_hkr_economy_temperature/2", %{client: client} do
+      mock(fn
+        %Tesla.Env{
+          method: :get,
+          url: "http://fritz.box/webservices/homeautoswitch.lua",
+          query: [switchcmd: "gethkrabsenk", sid: "$session_id", ain: ain]
+        } ->
+          case ain do
+            "087610000434" -> text("16")
+            "087610000435" -> text("56")
+            "087610000436" -> text("253")
+            "087610000437" -> text("254")
+          end
+      end)
+
+      assert {:ok, 8.0} = FritzApi.get_hkr_economy_temperature(client, "087610000434")
+      assert {:ok, 28.0} = FritzApi.get_hkr_economy_temperature(client, "087610000435")
+      assert {:ok, :off} = FritzApi.get_hkr_economy_temperature(client, "087610000436")
+      assert {:ok, :on} = FritzApi.get_hkr_economy_temperature(client, "087610000437")
+    end
+
+    @tag logged_in: true
+    test "set_hkr_target_temperature/3", %{client: client} do
+      mock(fn
+        %Tesla.Env{
+          method: :get,
+          url: "http://fritz.box/webservices/homeautoswitch.lua",
+          query: [{:switchcmd, "sethkrtsoll"}, {:sid, "$session_id"} | query]
+        } ->
+          case {query[:ain], query[:param]} do
+            {"087610000434", 16} -> text("")
+            {"087610000435", 56} -> text("")
+            {"087610000436", 17} -> text("")
+            {"087610000437", 56} -> text("")
+          end
+      end)
+
+      assert :ok = FritzApi.set_hkr_target_temperature(client, "087610000434", 8.0)
+      assert :ok = FritzApi.set_hkr_target_temperature(client, "087610000435", 28.0)
+      assert :ok = FritzApi.set_hkr_target_temperature(client, "087610000436", 8.6)
+      assert :ok = FritzApi.set_hkr_target_temperature(client, "087610000437", 27.9)
+    end
+
+    @tag logged_in: true
+    test "enable_hkr_target_temperature/2", %{client: client} do
+      mock(fn
+        %Tesla.Env{
+          method: :get,
+          url: "http://fritz.box/webservices/homeautoswitch.lua",
+          query: [switchcmd: "sethkrtsoll", sid: "$session_id", ain: "087610000434", param: 254]
+        } ->
+          text("")
+      end)
+
+      assert :ok = FritzApi.enable_hkr_target_temperature(client, "087610000434")
+    end
+
+    @tag logged_in: true
+    test "disable_hkr_target_temperature/2", %{client: client} do
+      mock(fn
+        %Tesla.Env{
+          method: :get,
+          url: "http://fritz.box/webservices/homeautoswitch.lua",
+          query: [switchcmd: "sethkrtsoll", sid: "$session_id", ain: "087610000434", param: 253]
+        } ->
+          text("")
+      end)
+
+      assert :ok = FritzApi.disable_hkr_target_temperature(client, "087610000434")
+    end
+  end
 end
