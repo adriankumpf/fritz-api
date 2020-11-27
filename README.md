@@ -53,7 +53,7 @@ Add `fritz_api` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:fritz_api, "~> 2.0"},
+    {:fritz_api, "~> 2.0.0-rc.0"},
     {:hackney, "~> 1.16"}
   ]
 end
