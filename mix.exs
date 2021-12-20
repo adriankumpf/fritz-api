@@ -31,7 +31,7 @@ defmodule FritzApi.Mixfile do
     [
       {:tesla, "~> 1.3"},
       {:hackney, "~> 1.15", optional: true},
-      {:elixir_xml_to_map, "~> 2.0"}
+      {:elixir_xml_to_map, "~> 3.0"}
     ]
   end
 
