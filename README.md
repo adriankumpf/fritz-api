@@ -124,7 +124,7 @@ Add `fritz_api` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:fritz_api, "~> 2.0"},
+    {:fritz_api, "~> 2.1"},
     {:hackney, "~> 1.17"}
   ]
 end
@@ -138,4 +138,3 @@ The docs can be found at [hexdocs.pm/fritz_api](https://hexdocs.pm/fritz_api).
 
 - [AHA HTTP Interface](https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/AHA-HTTP-Interface.pdf)
 - [AVM Technical Note - Session ID](https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/AVM_Technical_Note_-_Session_ID.pdf)
-
