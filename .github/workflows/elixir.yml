@@ -20,12 +20,12 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/cache@v3.0.6
+      - uses: actions/cache@v3.0.7
         with:
           path: deps
           key: deps-${{ hashFiles('**/mix.lock') }}
           restore-keys: deps-
-      - uses: actions/cache@v3.0.6
+      - uses: actions/cache@v3.0.7
         with:
           path: _build
           key: build-${{ runner.os }}-${{ matrix.pair.otp }}-${{ matrix.pair.elixir }}-${{ hashFiles('**/mix.lock') }}
