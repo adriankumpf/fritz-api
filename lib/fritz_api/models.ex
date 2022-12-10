@@ -121,7 +121,7 @@ defmodule FritzApi.Actor do
   end
 
   defp parse_functions(bitmask) do
-    use Bitwise
+    import Bitwise
 
     n = String.to_integer(bitmask)
 
