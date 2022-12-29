@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0 (2022-12-29)
+
+- Fix deprecation warning
+- Update dependencies
+
 ## 2.1.0 (2022-02-22)
 
 - Bump elixir_xml_to_map to 3.0

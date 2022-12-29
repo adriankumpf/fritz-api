@@ -2,7 +2,7 @@ defmodule FritzApi.Mixfile do
   use Mix.Project
 
   @name "FritzApi"
-  @version "2.1.0"
+  @version "2.2.0"
   @url "https://github.com/adriankumpf/fritz-api"
 
   def project do
