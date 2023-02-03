@@ -24,4 +24,4 @@ FritzApi 2.0 is a major release containing significant changes, particularly aro
   - See README for an example
 - Switch functions like `FritzApi.get_switch_state/2` return `:on`, `:off` atoms instead of a boolean, and `:unknown` if the actor is unavailable
 - Introduce a custom error struct (`FritzApi.Error`) and use custom structs for actors (e.g. `FritzApi.Switch`)
-- Make hackney an optional dependency. To use the default `hackney` based adatper, add `{:hackney, "~> 1.16"}` to the list of dependencies.
+- Make hackney an optional dependency. To use the default `hackney` based adapter, add `{:hackney, "~> 1.16"}` to the list of dependencies.

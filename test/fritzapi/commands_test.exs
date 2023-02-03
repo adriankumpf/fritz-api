@@ -212,7 +212,7 @@ defmodule FritzApi.CommandsTest do
 
   describe "get_switch_list/1" do
     @tag logged_in: true
-    test "returns the AINs of all known swithces", %{client: client} do
+    test "returns the AINs of all known switches", %{client: client} do
       mock(fn
         %Tesla.Env{
           method: :get,

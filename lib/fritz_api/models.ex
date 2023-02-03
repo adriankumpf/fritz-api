@@ -58,7 +58,7 @@ defmodule FritzApi.Actor do
   - `ain`: identification of the actor, e.g. "012340000123" or MAC address for
   network devices
   - `fwversion`: firmware version of the device
-  - `id`: interal device ID
+  - `id`: internal device ID
   - `manufacturer`: should always be "AVM"
   - `productname`: product name of the device; `nil` if undefined or unknown
   - `present`: indicates whether the devices is connected with the FritzBox;
