@@ -21,7 +21,7 @@ defmodule FritzApi.Mixfile do
   end
 
   def application do
-    []
+    [mod: {FritzApi.Application, []}]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
@@ -29,9 +29,10 @@ defmodule FritzApi.Mixfile do
 
   defp deps do
     [
-      {:tesla, "~> 1.3"},
-      {:hackney, "~> 1.15", optional: true},
-      {:elixir_xml_to_map, "~> 3.0"}
+      {:finch, "~> 0.16", optional: true},
+      {:elixir_xml_to_map, "~> 3.0"},
+      {:ex_doc, "~> 0.30", only: :dev, runtime: false},
+      {:bypass, "~> 2.1", only: :test}
     ]
   end
 

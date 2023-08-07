@@ -9,6 +9,21 @@
 Fritz!Box Home Automation API Client for Elixir
 ([documentation](https://hexdocs.pm/fritz_api)).
 
+## Installation
+
+Add `:fritz_api` and `:finch` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:fritz_api, "~> 3.0"},
+    {:finch, "~> 0.16"}
+  ]
+end
+```
+
+The docs can be found at [hexdocs.pm/fritz_api](https://hexdocs.pm/fritz_api).
+
 ## Usage
 
 ```elixir
@@ -44,7 +59,7 @@ iex> FritzApi.get_temperature(client, "687690315761")
 {:ok, 23.5}
 ```
 
-### Example: Automatic Session Refresh
+### Automatic Session Refresh
 
 ```elixir
 defmodule Switch do
@@ -64,11 +79,7 @@ defmodule Switch do
 
   @impl true
   def init(opts) do
-    client =
-      FritzApi.Client.new(
-        base_url: opts[:host],
-        receive_timeout: :timer.seconds(30)
-      )
+    client = FritzApi.Client.new(base_url: opts[:host])
 
     state = %State{
       username: Keyword.fetch!(opts, :username),
@@ -115,24 +126,40 @@ iex> Switch.turn_on(pid)
 :ok
 ```
 
-<!-- MDOC !-->
+### Alternative HTTP client
 
-## Installation
-
-Add `fritz_api` to your list of dependencies in `mix.exs`:
+If you need different functionality for the HTTP client, you can define your own module that implements the `FritzApi.HTTPClient` behaviour and set `config :fritz_api, :client` to that module:
 
 ```elixir
-def deps do
-  [
-    {:fritz_api, "~> 2.2"},
-    {:hackney, "~> 1.18"}
-  ]
+config :fritz_api, :client, HackneyClient
+```
+
+A client based on `:hackney` could look like this:
+
+```elixir
+defmodule HackneyClient do
+  @behaviour FritzApi.HTTPClient
+
+  @hackney_pool_name :fritz_api_pool
+
+  @impl true
+  def child_spec(opts) do
+    :hackney_pool.child_spec(@hackney_pool_name, opts)
+  end
+
+  @impl true
+  def request(method, url, headers, body, opts) do
+    opts = Keyword.merge(opts, pool: @hackney_pool_name) ++ [:with_body]
+
+    case :hackney.request(method, url, headers, body, opts) do
+      {:ok, _status, _headers, _body} = result -> result
+      {:error, _reason} = error -> error
+    end
+  end
 end
 ```
 
-By default, `fritz_api` uses [hackney](https://github.com/benoitc/hackney) (via `Tesla.Adapter.Hackney`). Add `hackney` to the list of dependencies too if you don't want to use another HTTP adapter (see [Tesla Adapters](https://github.com/teamon/tesla#adapters) to find all available adapters and [`FritzApi.Client.new/1`](https://hexdocs.pm/fritz_api/FritzApi.Client.html#new/1) on how to configure another adapter).
-
-The docs can be found at [hexdocs.pm/fritz_api](https://hexdocs.pm/fritz_api).
+<!-- MDOC !-->
 
 ## References
 
