@@ -1,5 +1,48 @@
 # Changelog
 
+## 3.0.0
+
+### Breaking Changes
+
+- Migrate built-in HTTP from `hackney` to `Finch`
+- Replace the`:adapter` with the `:client` option
+
+### Upgrade instructions
+
+#### Dependencies
+
+FritzApi now ships with an HTTP client based on `:finch` instead of `:hackney`.
+
+Add `:finch` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:fritz_api, "~> 3.0"},
+    {:finch, "~> 0.16"},
+  ]
+end
+```
+
+#### HTTP client (optional)
+
+1. Remove the `:adapter` configuration from `FritzApi.Client.new/1`:
+
+   ```diff
+   {:ok, client} = FritzApi.Client.new(
+   -  adapter: {Tesla.Adapter.Gun, []}
+   )
+   ```
+
+2. In `config/runtime.exs` set the `:fritz_api, :client` option and to your own module that implements the `FritzApi.HTTPClient` behaviour:
+
+   ```diff
+   + config :fritz_api,
+   +   client: MyGunAdapter
+   ```
+
+See the documentation for `FritzApi.HTTPClient` for more information.
+
 ## 2.2.0 (2022-12-29)
 
 - Fix deprecation warning
