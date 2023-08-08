@@ -1,9 +1,8 @@
 defmodule FritzApi.Mixfile do
   use Mix.Project
 
-  @name "FritzApi"
-  @version "2.2.0"
-  @url "https://github.com/adriankumpf/fritz-api"
+  @version "3.0.0-dev"
+  @source_url "https://github.com/adriankumpf/fritz-api"
 
   def project do
     [
@@ -14,9 +13,26 @@ defmodule FritzApi.Mixfile do
       deps: deps(),
       description: "FritzBox Home Automation API Client for Elixir",
       package: package(),
-      aliases: [docs: &build_docs/1],
-      source_url: "https://github.com/adriankumpf/fritz-api",
-      name: @name
+      source_url: @source_url,
+      docs: [
+        extras: [
+          "README.md",
+          "CHANGELOG.md",
+          "guides/howto/automatic_session_refresh.md"
+        ],
+        source_ref: "#{@version}",
+        source_url: @source_url,
+        main: "readme",
+        skip_undefined_reference_warnings_on: ["CHANGELOG.md"],
+        groups_for_modules: [
+          "HTTP Client": ~r/HTTPClient/,
+          Models: &(&1[:section] == :models)
+        ],
+        groups_for_extras: [
+          "How-to's": ~r/guides\/howto\/.?/
+        ]
+      ],
+      xref: [exclude: [Finch]]
     ]
   end
 
@@ -38,24 +54,13 @@ defmodule FritzApi.Mixfile do
 
   defp package do
     [
+      files: ["lib", "LICENSE", "mix.exs", "README.md", "CHANGELOG.md"],
+      maintainers: ["Adrian Kumpf"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/adriankumpf/fritz-api"},
-      maintainers: ["Adrian Kumpf"]
+      links: %{
+        "Changelog" => "#{@source_url}/blob/master/CHANGELOG.md",
+        "GitHub" => @source_url
+      }
     ]
-  end
-
-  defp build_docs(_) do
-    Mix.Task.run("compile")
-
-    ex_doc = Path.join(Mix.path_for(:escripts), "ex_doc")
-
-    unless File.exists?(ex_doc) do
-      raise "cannot build docs because escript for ex_doc is not installed"
-    end
-
-    args = [@name, @version, Mix.Project.compile_path()]
-    opts = ~w[--main #{@name} --source-ref v#{@version} --source-url #{@url} --config .docs.exs]
-    System.cmd(ex_doc, args ++ opts)
-    Mix.shell().info("Docs built successfully")
   end
 end

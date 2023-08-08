@@ -7,7 +7,32 @@ defmodule FritzApi.HTTPClient do
   To configure a different HTTP client, implement the `FritzApi.HTTPClient` behaviour
   and change the `:client` configuration:
 
-      config :fritz_api, :client, HackneyClient
+      config :fritz_api, :client, MyHTTPClient
+
+  ## Example
+
+  A client implementation based on `:hackney` could look like this:
+
+      defmodule MyHTTPClient do
+        @behaviour LoggerTelegramBackend.HTTPClient
+
+        @hackney_pool_name :logger_telegram_backend_pool
+
+        @impl true
+        def child_spec(opts) do
+          :hackney_pool.child_spec(@hackney_pool_name, opts)
+        end
+
+        @impl true
+        def request(method, url, headers, body, opts) do
+          opts = Keyword.merge(opts, pool: @hackney_pool_name) ++ [:with_body]
+
+          case :hackney.request(method, url, headers, body, opts) do
+            {:ok, _status, _headers, _body} = result -> result
+            {:error, _reason} = error -> error
+          end
+        end
+      end
 
   """
 
@@ -45,7 +70,7 @@ defmodule FritzApi.HTTPClient do
   @callback child_spec(pool_opts) :: Supervisor.child_spec() | nil
 
   @doc """
-  Should make an HTTP request to `url`.
+  Should make an HTTP request to `t:url/0` with the given `t:req_opts/0`.
   """
   @callback get(url, req_opts) :: {:ok, status, headers, body} | {:error, term}
 end

@@ -29,7 +29,7 @@ defmodule FritzApi.HTTPClient.FinchTest do
     assert {_, "bar"} = List.keyfind(resp_headers, "x-foo", 0)
   end
 
-  test "get/1 passes the requst options", %{bypass: bypass} do
+  test "get/1 passes the request options", %{bypass: bypass} do
     Bypass.stub(bypass, "GET", "/", fn conn ->
       Process.sleep(5)
       Plug.Conn.resp(conn, 200, "ok")

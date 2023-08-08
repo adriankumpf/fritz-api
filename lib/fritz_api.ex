@@ -13,6 +13,33 @@ defmodule FritzApi do
       iex> FritzApi.get_temperature(client, "687690315761")
       {:ok, 23.5}
 
+  ## Configuration
+
+  The main way to configure FritzApi is through the options passed to `FritzApi.Client.new/1`.
+
+  To customize the behaviour of the HTTP client used by FritzApi, you need to configure FritzApi
+  through the application environment. Configure the following keys under the `:fritz_api`
+  application. For example, you can do this in `config/config.exs`:
+
+      # config/config.exs
+      config :fritz_api,
+        client: MyHTTPClient,
+        client_pool_opts: [],
+        client_request_opts: [receive_timeout: 15_000]
+
+  To customize the behaviour of the HTTP client used by FritzApi, you need to configure FritzApi
+  through the application environment.
+
+  You can use these options:
+
+  - `:client` (`t:module/0`) - A module that implements the `FritzApi.HTTPClient`
+  behaviour. Defaults to `FritzApi.HTTPClient.Finch` (requires `:finch`).
+
+  - `:client_pool_opts` (`t:keyword/0`) - Options to configure the HTTP client pool. See
+  `Finch.start_link/1`. Defaults to `[]`.
+
+  - `:client_request_opts` (`t:keyword/0`) - Options passed to the `c:FritzApi.HTTPClient.get/2`
+  callback. See `Finch.request/3`. Defaults to `[]`.
   """
 
   alias FritzApi.{Client, Error, Actor}
