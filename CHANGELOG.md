@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.0
+## 3.0.0 (2023-08-12)
 
 ### Breaking Changes
 
