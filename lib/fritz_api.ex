@@ -17,18 +17,12 @@ defmodule FritzApi do
 
   The main way to configure FritzApi is through the options passed to `FritzApi.Client.new/1`.
 
-  To customize the behaviour of the HTTP client used by FritzApi, you need to configure FritzApi
-  through the application environment. Configure the following keys under the `:fritz_api`
-  application. For example, you can do this in `config/config.exs`:
+  To customize the behaviour of the HTTP client used by FritzApi, you can configure FritzApi through
+  the application environment . For example, you can do this in `config/runtime.exs`:
 
-      # config/config.exs
+      # config/runtime.exs
       config :fritz_api,
-        client: MyHTTPClient,
-        client_pool_opts: [],
-        client_request_opts: [receive_timeout: 15_000]
-
-  To customize the behaviour of the HTTP client used by FritzApi, you need to configure FritzApi
-  through the application environment.
+        # ...
 
   You can use these options:
 
