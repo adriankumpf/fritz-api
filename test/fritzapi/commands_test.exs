@@ -6,8 +6,9 @@ defmodule FritzApi.CommandsTest do
 
     @logged_in true
     test "returns one actor if the devicelist contains one device", %{client: client} do
-      mock( fn "http://fritz.box/webservices/homeautoswitch.lua",
-              [switchcmd: "getdevicelistinfos", sid: "$session_id"], _opts ->
+      mock(fn "http://fritz.box/webservices/homeautoswitch.lua",
+              [switchcmd: "getdevicelistinfos", sid: "$session_id"],
+              _opts ->
         response =
           """
           <devicelist version="1">
@@ -62,9 +63,10 @@ defmodule FritzApi.CommandsTest do
 
     @logged_in true
     test "returns actors", %{client: client} do
-      mock( fn
+      mock(fn
         "http://fritz.box/webservices/homeautoswitch.lua",
-        [switchcmd: "getdevicelistinfos", sid: "$session_id"], _opts ->
+        [switchcmd: "getdevicelistinfos", sid: "$session_id"],
+        _opts ->
           response =
             """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -151,8 +153,9 @@ defmodule FritzApi.CommandsTest do
 
     @logged_in true
     test "handles empty fields", %{client: client} do
-      mock( fn "http://fritz.box/webservices/homeautoswitch.lua",
-              [switchcmd: "getdevicelistinfos", sid: "$session_id"], _opts ->
+      mock(fn "http://fritz.box/webservices/homeautoswitch.lua",
+              [switchcmd: "getdevicelistinfos", sid: "$session_id"],
+              _opts ->
         response =
           """
           <devicelist version="1">
@@ -208,9 +211,10 @@ defmodule FritzApi.CommandsTest do
   describe "get_switch_list/1" do
     @logged_in true
     test "returns the AINs of all known switches", %{client: client} do
-      mock( fn
+      mock(fn
         "http://fritz.box/webservices/homeautoswitch.lua",
-        [switchcmd: "getswitchlist", sid: "$session_id"], _opts ->
+        [switchcmd: "getswitchlist", sid: "$session_id"],
+        _opts ->
           headers = [{"content-type", "text/plain; charset=utf-8"}]
           response = "000,111,222,333\n"
           {:ok, 200, headers, response}
@@ -223,9 +227,10 @@ defmodule FritzApi.CommandsTest do
   describe "set_switch_*/2" do
     @logged_in true
     test "turns on a switch", %{client: client} do
-      mock( fn
+      mock(fn
         "http://fritz.box/webservices/homeautoswitch.lua",
-        [switchcmd: "setswitchon", sid: "$session_id", ain: "087610000434"], _opts ->
+        [switchcmd: "setswitchon", sid: "$session_id", ain: "087610000434"],
+        _opts ->
           {:ok, 200, [], "1\n"}
       end)
 
@@ -234,9 +239,10 @@ defmodule FritzApi.CommandsTest do
 
     @logged_in true
     test "turns off a switch", %{client: client} do
-      mock( fn
+      mock(fn
         "http://fritz.box/webservices/homeautoswitch.lua",
-        [switchcmd: "setswitchoff", sid: "$session_id", ain: "087610000434"], _opts ->
+        [switchcmd: "setswitchoff", sid: "$session_id", ain: "087610000434"],
+        _opts ->
           {:ok, 200, [], "0\n"}
       end)
 
@@ -245,9 +251,10 @@ defmodule FritzApi.CommandsTest do
 
     @logged_in true
     test "toggles a switch", %{client: client} do
-      mock( fn
+      mock(fn
         "http://fritz.box/webservices/homeautoswitch.lua",
-        [switchcmd: "setswitchtoggle", sid: "$session_id", ain: ain], _opts ->
+        [switchcmd: "setswitchtoggle", sid: "$session_id", ain: ain],
+        _opts ->
           response =
             case ain do
               "087610000434" -> "0\n"
@@ -264,9 +271,10 @@ defmodule FritzApi.CommandsTest do
 
   @logged_in true
   test "get_switch_state/2", %{client: client} do
-    mock( fn
+    mock(fn
       "http://fritz.box/webservices/homeautoswitch.lua",
-      [switchcmd: "getswitchstate", sid: "$session_id", ain: ain], _opts ->
+      [switchcmd: "getswitchstate", sid: "$session_id", ain: ain],
+      _opts ->
         response =
           case ain do
             "087610000434" -> "0\n"
@@ -284,9 +292,10 @@ defmodule FritzApi.CommandsTest do
 
   @logged_in true
   test "get_switch_present/2", %{client: client} do
-    mock( fn
+    mock(fn
       "http://fritz.box/webservices/homeautoswitch.lua",
-      [switchcmd: "getswitchpresent", sid: "$session_id", ain: ain], _opts ->
+      [switchcmd: "getswitchpresent", sid: "$session_id", ain: ain],
+      _opts ->
         response =
           case ain do
             "087610000434" -> "0"
@@ -302,9 +311,10 @@ defmodule FritzApi.CommandsTest do
 
   @logged_in true
   test "get_switch_power/2", %{client: client} do
-    mock( fn
+    mock(fn
       "http://fritz.box/webservices/homeautoswitch.lua",
-      [switchcmd: "getswitchpower", sid: "$session_id", ain: ain], _opts ->
+      [switchcmd: "getswitchpower", sid: "$session_id", ain: ain],
+      _opts ->
         response =
           case ain do
             "087610000434" -> "0"
@@ -315,16 +325,17 @@ defmodule FritzApi.CommandsTest do
         {:ok, 200, [], response}
     end)
 
-    assert {:ok, 0.0} = FritzApi.get_switch_power(client, "087610000434")
+    assert {:ok, +0.0} = FritzApi.get_switch_power(client, "087610000434")
     assert {:ok, 3500.0} = FritzApi.get_switch_power(client, "087610000435")
     assert {:ok, :unknown} = FritzApi.get_switch_power(client, "087610000436")
   end
 
   @logged_in true
   test "get_switch_energy/2", %{client: client} do
-    mock( fn
+    mock(fn
       "http://fritz.box/webservices/homeautoswitch.lua",
-      [switchcmd: "getswitchenergy", sid: "$session_id", ain: ain], _opts ->
+      [switchcmd: "getswitchenergy", sid: "$session_id", ain: ain],
+      _opts ->
         response =
           case ain do
             "087610000434" -> "0"
@@ -335,16 +346,17 @@ defmodule FritzApi.CommandsTest do
         {:ok, 200, [], response}
     end)
 
-    assert {:ok, 0.0} = FritzApi.get_switch_energy(client, "087610000434")
+    assert {:ok, +0.0} = FritzApi.get_switch_energy(client, "087610000434")
     assert {:ok, 3500.0} = FritzApi.get_switch_energy(client, "087610000435")
     assert {:ok, :unknown} = FritzApi.get_switch_energy(client, "087610000436")
   end
 
   @logged_in true
   test "get_switch_name/2", %{client: client} do
-    mock( fn
+    mock(fn
       "http://fritz.box/webservices/homeautoswitch.lua",
-      [switchcmd: "getswitchname", sid: "$session_id", ain: "087610000434"], _opts ->
+      [switchcmd: "getswitchname", sid: "$session_id", ain: "087610000434"],
+      _opts ->
         {:ok, 200, [], "Smart Plug"}
     end)
 
@@ -353,9 +365,10 @@ defmodule FritzApi.CommandsTest do
 
   @logged_in true
   test "get_temperature/2", %{client: client} do
-    mock( fn
+    mock(fn
       "http://fritz.box/webservices/homeautoswitch.lua",
-      [switchcmd: "gettemperature", sid: "$session_id", ain: ain], _opts ->
+      [switchcmd: "gettemperature", sid: "$session_id", ain: ain],
+      _opts ->
         response =
           case ain do
             "087610000434" -> "0"
@@ -367,7 +380,7 @@ defmodule FritzApi.CommandsTest do
         {:ok, 200, [], response}
     end)
 
-    assert {:ok, 0.0} = FritzApi.get_temperature(client, "087610000434")
+    assert {:ok, +0.0} = FritzApi.get_temperature(client, "087610000434")
     assert {:ok, 20.0} = FritzApi.get_temperature(client, "087610000435")
     assert {:ok, -2.5} = FritzApi.get_temperature(client, "087610000436")
     assert {:ok, :unknown} = FritzApi.get_temperature(client, "087610000437")
@@ -376,9 +389,10 @@ defmodule FritzApi.CommandsTest do
   describe "hkr" do
     @logged_in true
     test "get_hkr_target_temperature/2", %{client: client} do
-      mock( fn
+      mock(fn
         "http://fritz.box/webservices/homeautoswitch.lua",
-        [switchcmd: "gethkrtsoll", sid: "$session_id", ain: ain], _opts ->
+        [switchcmd: "gethkrtsoll", sid: "$session_id", ain: ain],
+        _opts ->
           response =
             case ain do
               "087610000434" -> "16"
@@ -398,9 +412,10 @@ defmodule FritzApi.CommandsTest do
 
     @logged_in true
     test "get_hkr_comfort_temperature/2", %{client: client} do
-      mock( fn
+      mock(fn
         "http://fritz.box/webservices/homeautoswitch.lua",
-        [switchcmd: "gethkrkomfort", sid: "$session_id", ain: ain], _opts ->
+        [switchcmd: "gethkrkomfort", sid: "$session_id", ain: ain],
+        _opts ->
           response =
             case ain do
               "087610000434" -> "16"
@@ -420,9 +435,10 @@ defmodule FritzApi.CommandsTest do
 
     @logged_in true
     test "get_hkr_economy_temperature/2", %{client: client} do
-      mock( fn
+      mock(fn
         "http://fritz.box/webservices/homeautoswitch.lua",
-        [switchcmd: "gethkrabsenk", sid: "$session_id", ain: ain], _opts ->
+        [switchcmd: "gethkrabsenk", sid: "$session_id", ain: ain],
+        _opts ->
           response =
             case ain do
               "087610000434" -> "16"
@@ -442,9 +458,10 @@ defmodule FritzApi.CommandsTest do
 
     @logged_in true
     test "set_hkr_target_temperature/3", %{client: client} do
-      mock( fn
+      mock(fn
         "http://fritz.box/webservices/homeautoswitch.lua",
-        [{:switchcmd, "sethkrtsoll"}, {:sid, "$session_id"} | query], _opts ->
+        [{:switchcmd, "sethkrtsoll"}, {:sid, "$session_id"} | query],
+        _opts ->
           response =
             case {query[:ain], query[:param]} do
               {"087610000434", "16"} -> ""
@@ -464,9 +481,10 @@ defmodule FritzApi.CommandsTest do
 
     @logged_in true
     test "enable_hkr_target_temperature/2", %{client: client} do
-      mock( fn
+      mock(fn
         "http://fritz.box/webservices/homeautoswitch.lua",
-        [switchcmd: "sethkrtsoll", sid: "$session_id", ain: "087610000434", param: "254"], _opts ->
+        [switchcmd: "sethkrtsoll", sid: "$session_id", ain: "087610000434", param: "254"],
+        _opts ->
           {:ok, 200, [], ""}
       end)
 
@@ -475,9 +493,10 @@ defmodule FritzApi.CommandsTest do
 
     @logged_in true
     test "disable_hkr_target_temperature/2", %{client: client} do
-      mock( fn
+      mock(fn
         "http://fritz.box/webservices/homeautoswitch.lua",
-        [switchcmd: "sethkrtsoll", sid: "$session_id", ain: "087610000434", param: "253"], _opts ->
+        [switchcmd: "sethkrtsoll", sid: "$session_id", ain: "087610000434", param: "253"],
+        _opts ->
           {:ok, 200, [], ""}
       end)
 
