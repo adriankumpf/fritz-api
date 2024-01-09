@@ -8,7 +8,7 @@ defmodule FritzApi.Mixfile do
     [
       app: :fritz_api,
       version: @version,
-      elixir: "~> 1.10",
+      elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       description: "FritzBox Home Automation API Client for Elixir",
