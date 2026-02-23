@@ -192,9 +192,9 @@ defmodule FritzApi.Powermeter do
   use FritzApi.Model
 
   @type t :: %__MODULE__{
-          energy: integer,
-          power: integer,
-          voltage: integer
+          energy: float,
+          power: float,
+          voltage: float
         }
 
   defstruct [:energy, :power, :voltage]
