@@ -132,7 +132,7 @@ defmodule FritzApi do
 
   """
   @spec set_switch_on(Client.t(), ain) :: {:error, Error.t()} | :ok
-  def set_switch_on(%Client{} = client, ain) do
+  def set_switch_on(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "setswitchon", ain: ain) do
       {:ok, "1"} -> :ok
       {:error, reason} -> {:error, reason}
@@ -149,7 +149,7 @@ defmodule FritzApi do
 
   """
   @spec set_switch_off(Client.t(), ain) :: {:error, Error.t()} | :ok
-  def set_switch_off(%Client{} = client, ain) do
+  def set_switch_off(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "setswitchoff", ain: ain) do
       {:ok, "0"} -> :ok
       {:error, reason} -> {:error, reason}
@@ -166,7 +166,7 @@ defmodule FritzApi do
 
   """
   @spec set_switch_toggle(Client.t(), ain) :: {:error, Error.t()} | {:ok, :on | :off}
-  def set_switch_toggle(%Client{} = client, ain) do
+  def set_switch_toggle(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "setswitchtoggle", ain: ain) do
       {:ok, "1"} -> {:ok, :on}
       {:ok, "0"} -> {:ok, :off}
@@ -186,7 +186,7 @@ defmodule FritzApi do
 
   """
   @spec get_switch_state(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unknown | :on | :off}
-  def get_switch_state(%Client{} = client, ain) do
+  def get_switch_state(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "getswitchstate", ain: ain) do
       {:ok, "1"} -> {:ok, :on}
       {:ok, "0"} -> {:ok, :off}
@@ -205,7 +205,7 @@ defmodule FritzApi do
 
   """
   @spec get_switch_present(Client.t(), ain) :: {:error, Error.t()} | {:ok, boolean}
-  def get_switch_present(%Client{} = client, ain) do
+  def get_switch_present(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "getswitchpresent", ain: ain) do
       {:ok, "1"} -> {:ok, true}
       {:ok, "0"} -> {:ok, false}
@@ -225,7 +225,7 @@ defmodule FritzApi do
 
   """
   @spec get_switch_power(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unknown | float}
-  def get_switch_power(%Client{} = client, ain) do
+  def get_switch_power(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "getswitchpower", ain: ain) do
       {:ok, "inval"} -> {:ok, :unknown}
       {:ok, power} when is_binary(power) -> {:ok, to_float(power, 3)}
@@ -245,7 +245,7 @@ defmodule FritzApi do
 
   """
   @spec get_switch_energy(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unknown | float}
-  def get_switch_energy(%Client{} = client, ain) do
+  def get_switch_energy(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "getswitchenergy", ain: ain) do
       {:ok, "inval"} -> {:ok, :unknown}
       {:ok, energy} when is_binary(energy) -> {:ok, to_float(energy, 3)}
@@ -263,7 +263,7 @@ defmodule FritzApi do
 
   """
   @spec get_switch_name(Client.t(), ain) :: {:error, Error.t()} | {:ok, String.t()}
-  def get_switch_name(%Client{} = client, ain) do
+  def get_switch_name(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     Client.execute_command(client, "getswitchname", ain: ain)
   end
 
@@ -279,7 +279,7 @@ defmodule FritzApi do
 
   """
   @spec get_temperature(Client.t(), ain) :: {:error, Error.t()} | {:ok, :unknown | float}
-  def get_temperature(%Client{} = client, ain) do
+  def get_temperature(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "gettemperature", ain: ain) do
       {:ok, "inval"} -> {:ok, :unknown}
       {:ok, temp} when is_binary(temp) -> {:ok, to_float(temp, 1)}
@@ -299,7 +299,7 @@ defmodule FritzApi do
   """
   @spec get_hkr_target_temperature(Client.t(), ain) ::
           {:error, Error.t()} | {:ok, :unknown | :on | :off | float}
-  def get_hkr_target_temperature(%Client{} = client, ain) do
+  def get_hkr_target_temperature(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "gethkrtsoll", ain: ain) do
       {:ok, value} when is_binary(value) -> {:ok, from_hkr_temp(value)}
       {:error, reason} -> {:error, reason}
@@ -318,7 +318,7 @@ defmodule FritzApi do
   """
   @spec get_hkr_comfort_temperature(Client.t(), ain) ::
           {:error, Error.t()} | {:ok, :unknown | :on | :off | float}
-  def get_hkr_comfort_temperature(%Client{} = client, ain) do
+  def get_hkr_comfort_temperature(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "gethkrkomfort", ain: ain) do
       {:ok, value} when is_binary(value) -> {:ok, from_hkr_temp(value)}
       {:error, reason} -> {:error, reason}
@@ -337,7 +337,7 @@ defmodule FritzApi do
   """
   @spec get_hkr_economy_temperature(Client.t(), ain) ::
           {:error, Error.t()} | {:ok, :unknown | :on | :off | float}
-  def get_hkr_economy_temperature(%Client{} = client, ain) do
+  def get_hkr_economy_temperature(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "gethkrabsenk", ain: ain) do
       {:ok, value} when is_binary(value) -> {:ok, from_hkr_temp(value)}
       {:error, reason} -> {:error, reason}
@@ -355,7 +355,7 @@ defmodule FritzApi do
   """
   @spec set_hkr_target_temperature(Client.t(), ain, 8..28) :: {:error, Error.t()} | :ok
   def set_hkr_target_temperature(%Client{} = client, ain, temp)
-      when is_number(temp) and (temp >= 8.0 and temp <= 28.0) do
+      when is_binary(ain) and ain != "" and is_number(temp) and (temp >= 8.0 and temp <= 28.0) do
     case Client.execute_command(client, "sethkrtsoll", ain: ain, param: to_hkr_temp(temp)) do
       {:ok, _unknown_response} -> :ok
       {:error, reason} -> {:error, reason}
@@ -372,7 +372,7 @@ defmodule FritzApi do
 
   """
   @spec enable_hkr_target_temperature(Client.t(), ain) :: {:error, Error.t()} | :ok
-  def enable_hkr_target_temperature(%Client{} = client, ain) do
+  def enable_hkr_target_temperature(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "sethkrtsoll", ain: ain, param: 254) do
       {:ok, _} -> :ok
       {:error, reason} -> {:error, reason}
@@ -389,7 +389,7 @@ defmodule FritzApi do
 
   """
   @spec disable_hkr_target_temperature(Client.t(), ain) :: {:error, Error.t()} | :ok
-  def disable_hkr_target_temperature(%Client{} = client, ain) do
+  def disable_hkr_target_temperature(%Client{} = client, ain) when is_binary(ain) and ain != "" do
     case Client.execute_command(client, "sethkrtsoll", ain: ain, param: 253) do
       {:ok, _} -> :ok
       {:error, reason} -> {:error, reason}
