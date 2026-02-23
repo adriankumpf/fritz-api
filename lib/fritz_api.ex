@@ -45,7 +45,7 @@ defmodule FritzApi do
   >
   > With FRITZ! OS 7.24 and later, the user name cannot be empty.
   """
-  @type useranme :: String.t()
+  @type username :: String.t()
 
   @typedoc "Password of the FritzBox user."
   @type password :: String.t()
@@ -338,12 +338,12 @@ defmodule FritzApi do
   end
 
   @doc """
-  Enabele the target temperature of the radiator controller.
+  Enable the target temperature of the radiator controller.
 
   ## Example
 
       iex> FritzApi.enable_hkr_target_temperature(client, "687690315761")
-      {:ok, 23.5}
+      :ok
 
   """
   @spec enable_hkr_target_temperature(Client.t(), ain) :: {:error, Error.t()} | :ok
@@ -357,7 +357,7 @@ defmodule FritzApi do
   ## Example
 
       iex> FritzApi.disable_hkr_target_temperature(client, "687690315761")
-      {:ok, 23.5}
+      :ok
 
   """
   @spec disable_hkr_target_temperature(Client.t(), ain) :: {:error, Error.t()} | :ok

@@ -158,7 +158,7 @@ defmodule FritzApi.Temperature do
   ### Properties:
 
   - `celsius`: last measured temperature
-  - `offsset`: configured offsset value
+  - `offset`: configured offset value
 
   """
 
@@ -186,7 +186,7 @@ defmodule FritzApi.Powermeter do
   - `power`: current power consumption (Watts); gets updated roughly every 2
   minutes
   - `energy`: total energy usage (kWh) since first use
-  - `voltage`: crurent voltage (V); gets updated roughly every 2 minutes
+  - `voltage`: current voltage (V); gets updated roughly every 2 minutes
 
   """
   use FritzApi.Model
