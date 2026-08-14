@@ -22,7 +22,11 @@ defmodule FritzApi.Client do
   defstruct [:base_url, :http_client, :request_opts, :session_id]
 
   @base_url "http://fritz.box"
+  @login_path "/login_sid.lua"
   @command_path "/webservices/homeautoswitch.lua"
+
+  # The FritzBox returns this SID to signal "not authenticated".
+  @no_session "0000000000000000"
 
   @doc """
   Creates a new FritzApi API client.
@@ -107,39 +111,50 @@ defmodule FritzApi.Client do
   end
 
   defp get_session_id(client, username, password) do
-    case get(client, "/login_sid.lua") do
-      {:ok, %{"SessionInfo" => %{"SID" => "0000000000000000", "Challenge" => challenge}}}
-      when is_binary(challenge) ->
-        challenge_resp = "#{challenge}-#{md5("#{challenge}-#{password}")}"
+    case login_request(client) do
+      {:ok, %{"SID" => @no_session, "Challenge" => challenge}} when is_binary(challenge) ->
+        answer_challenge(client, username, password, challenge)
 
-        case get(client, "/login_sid.lua", username: username, response: challenge_resp) do
-          {:ok, %{"SessionInfo" => %{"SID" => "0000000000000000", "BlockTime" => block_time}}} ->
-            reason = {:login_failed, block_time: String.to_integer(block_time)}
-            {:error, %Error{reason: reason}}
+      {:ok, info} ->
+        session_from(info)
 
-          {:ok, %{"SessionInfo" => %{"SID" => session_id}}} ->
-            {:ok, session_id}
+      {:error, _reason} = error ->
+        error
+    end
+  end
 
-          {:error, reason} ->
-            {:error, reason}
-        end
+  defp answer_challenge(client, username, password, challenge) do
+    response = "#{challenge}-#{md5("#{challenge}-#{password}")}"
 
-      {:ok, %{"SessionInfo" => %{"SID" => session_id}}} ->
-        {:ok, session_id}
+    case login_request(client, username: username, response: response) do
+      {:ok, %{"SID" => @no_session, "BlockTime" => block_time}} ->
+        {:error, %Error{reason: {:login_failed, block_time: String.to_integer(block_time)}}}
 
-      {:error, reason} ->
-        {:error, reason}
+      {:ok, info} ->
+        session_from(info)
+
+      {:error, _reason} = error ->
+        error
+    end
+  end
+
+  defp session_from(%{"SID" => @no_session}), do: {:error, %Error{reason: :login_failed}}
+  defp session_from(%{"SID" => session_id}), do: {:ok, session_id}
+
+  defp login_request(client, params \\ []) do
+    case get(client, @login_path, params) do
+      {:ok, %{"SessionInfo" => %{"SID" => _} = info}} -> {:ok, info}
+      {:ok, body} -> {:error, %Error{reason: {:unexpected_response, body}}}
+      {:error, _reason} = error -> error
     end
   end
 
   defp md5(data) when is_binary(data) do
-    data
-    |> :unicode.characters_to_binary(:utf8, {:utf16, :little})
-    |> (&:crypto.hash(:md5, &1)).()
-    |> Base.encode16(case: :lower)
+    utf16 = :unicode.characters_to_binary(data, :utf8, {:utf16, :little})
+    Base.encode16(:crypto.hash(:md5, utf16), case: :lower)
   end
 
-  defp get(%__MODULE__{http_client: http_client} = client, path, params \\ []) do
+  defp get(%__MODULE__{http_client: http_client} = client, path, params) do
     url = build_url(client.base_url, path, params)
 
     case http_client.get(url, client.request_opts) do
