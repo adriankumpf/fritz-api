@@ -1,7 +1,7 @@
 defmodule FritzApi.Model do
   @moduledoc false
 
-  @callback into(Enumerable.t()) :: struct
+  @callback into(map) :: struct
 
   defmacro __using__(_opts) do
     quote do
@@ -9,44 +9,41 @@ defmodule FritzApi.Model do
 
       @behaviour FritzApi.Model
 
-      @impl true
-      def into(attrs) do
-        fields = Enum.map(attrs, fn {k, v} -> {to_atom(k), v} end)
-        struct(__MODULE__, fields)
-      end
+      import FritzApi.Model
+    end
+  end
 
-      defoverridable into: 1
+  def to_atom(str) do
+    String.to_existing_atom(str)
+  rescue
+    ArgumentError -> str
+  end
 
-      defp to_atom(str) do
-        String.to_existing_atom(str)
-      rescue
-        ArgumentError -> str
-      end
+  def to_boolean("1"), do: true
+  def to_boolean("0"), do: false
+  def to_boolean(nil), do: nil
+  def to_boolean(%{}), do: nil
 
-      defp to_boolean("1"), do: true
-      defp to_boolean("0"), do: false
-      defp to_boolean(nil), do: nil
-      defp to_boolean(%{}), do: nil
+  def to_integer(nil), do: nil
+  def to_integer(%{}), do: nil
 
-      defp to_integer(nil), do: nil
-      defp to_integer(%{}), do: nil
+  def to_integer(str) do
+    case Integer.parse(str) do
+      {int, ""} -> int
+      _ -> nil
+    end
+  end
 
-      defp to_integer(str) do
-        case Integer.parse(str) do
-          {int, ""} -> int
-          _ -> nil
-        end
-      end
+  # The FritzBox reports fixed-point decimals as integers, e.g. "89418" for
+  # 89.418 kWh. `scale` is the divisor, e.g. `1000`. It differs per element, so
+  # don't assume it matches the same quantity elsewhere in the API.
+  def to_float(nil, _scale), do: nil
+  def to_float(%{}, _scale), do: nil
 
-      defp to_float(nil, _dec_places), do: nil
-      defp to_float(%{}, _dec_places), do: nil
-
-      defp to_float(string, dec_places) do
-        case Integer.parse(string) do
-          {val, ""} -> val / :math.pow(10, dec_places)
-          _ -> nil
-        end
-      end
+  def to_float(str, scale) do
+    case to_integer(str) do
+      nil -> nil
+      int -> int / scale
     end
   end
 end
@@ -173,7 +170,7 @@ defmodule FritzApi.Temperature do
 
   @impl true
   def into(%{"celsius" => celsius, "offset" => offset}) do
-    %__MODULE__{celsius: to_float(celsius, 1), offset: to_float(offset, 1)}
+    %__MODULE__{celsius: to_float(celsius, 10), offset: to_float(offset, 10)}
   end
 end
 
@@ -202,9 +199,9 @@ defmodule FritzApi.Powermeter do
   @impl true
   def into(attrs) do
     %__MODULE__{
-      energy: to_float(attrs["energy"], 3),
-      power: to_float(attrs["power"], 2),
-      voltage: to_float(attrs["voltage"], 3)
+      energy: to_float(attrs["energy"], 1000),
+      power: to_float(attrs["power"], 100),
+      voltage: to_float(attrs["voltage"], 1000)
     }
   end
 end
