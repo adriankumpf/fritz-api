@@ -76,6 +76,9 @@ the unauthenticated session ID instead of handing back an unusable client, and
 
 ### Changed
 
+- The minimum Elixir version is now 1.15, up from 1.11. Finch and its
+  dependencies require it, so the built-in HTTP client could not run on an
+  older Elixir anyway.
 - `t:FritzApi.Client.t/0` is no longer `@opaque`. It never was in practice, and
   Dialyzer reported an opacity violation for every `FritzApi` command. The
   struct fields remain private; use `FritzApi.Client.session_id/1` to read the
