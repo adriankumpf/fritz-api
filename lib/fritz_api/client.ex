@@ -3,20 +3,26 @@ defmodule FritzApi.Client do
   A FritzApi API Client
   """
 
-  alias FritzApi.Error
-  alias FritzApi.Config
+  alias FritzApi.{Config, Error}
 
-  @opaque t :: %__MODULE__{
-            base_url: String.t(),
-            http_client: module(),
-            request_opts: Keyword.t(),
-            session_id: String.t()
-          }
+  @typedoc """
+  A client, as returned by `new/1`.
+
+  Treat the struct as private: build it with `new/1` and read the session ID
+  with `session_id/1` rather than matching on the fields, which may change.
+  """
+  @type t :: %__MODULE__{
+          base_url: String.t(),
+          http_client: module(),
+          request_opts: Keyword.t(),
+          session_id: String.t() | nil
+        }
 
   @enforce_keys [:base_url, :http_client, :request_opts]
   defstruct [:base_url, :http_client, :request_opts, :session_id]
 
   @base_url "http://fritz.box"
+  @command_path "/webservices/homeautoswitch.lua"
 
   @doc """
   Creates a new FritzApi API client.
@@ -24,6 +30,12 @@ defmodule FritzApi.Client do
   ## Options
 
     * `:base_url` - the base URL for all endpoints (default: `#{@base_url}`)
+    * `:http_client` - a module implementing the `FritzApi.HTTPClient` behaviour
+      (default: the `:client` application environment value). Note that only the
+      configured `:client` gets a connection pool started for it at boot.
+    * `:request_opts` - options passed to `c:FritzApi.HTTPClient.get/2`
+      (default: the `:client_request_opts` application environment value)
+    * `:session_id` - an existing session ID, to reuse a session across restarts
 
   ## Examples
 
@@ -61,20 +73,40 @@ defmodule FritzApi.Client do
       {:ok, %FritzApi.Client{}}
 
   """
-  @spec login(t, String.t(), String.t()) :: {:ok, t} | {:error, Error.t()}
+  @spec login(t, FritzApi.username(), FritzApi.password()) :: {:ok, t} | {:error, Error.t()}
   def login(%__MODULE__{} = client, username, password)
       when is_binary(username) and is_binary(password) do
-    with {:ok, session_id} <- get_session_id(%__MODULE__{} = client, username, password) do
+    with {:ok, session_id} <- get_session_id(client, username, password) do
       {:ok, put_in(client.session_id, session_id)}
     end
   end
 
-  @doc false
-  def execute_command(%__MODULE__{session_id: sid} = client, cmd, params \\ []) do
-    get(client, "/webservices/homeautoswitch.lua", [switchcmd: cmd, sid: sid] ++ params)
+  @doc """
+  Returns the session ID of a logged in client, or `nil`.
+  """
+  @spec session_id(t) :: String.t() | nil
+  def session_id(%__MODULE__{session_id: session_id}), do: session_id
+
+  @doc """
+  Runs a home automation command and returns its decoded response body.
+
+  `FritzApi` wraps the commonly used commands, but the FritzBox supports more
+  than are wrapped here. Use this to reach the rest; see the [AVM Home
+  Automation documentation](https://avm.de/service/schnittstellen/) for the
+  available commands and their parameters.
+
+  ## Examples
+
+      iex> FritzApi.Client.execute_command(client, "setsimpleonoff", ain: ain, onoff: 2)
+      {:ok, "1"}
+
+  """
+  @spec execute_command(t, String.t(), Keyword.t()) :: {:ok, term} | {:error, Error.t()}
+  def execute_command(%__MODULE__{session_id: session_id} = client, cmd, params \\ []) do
+    get(client, @command_path, [switchcmd: cmd, sid: session_id] ++ params)
   end
 
-  defp get_session_id(%__MODULE__{} = client, username, password) do
+  defp get_session_id(client, username, password) do
     case get(client, "/login_sid.lua") do
       {:ok, %{"SessionInfo" => %{"SID" => "0000000000000000", "Challenge" => challenge}}}
       when is_binary(challenge) ->
