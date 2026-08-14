@@ -159,7 +159,7 @@ defmodule FritzApi.Client do
 
     case http_client.get(url, client.request_opts) do
       {:ok, 200, headers, body} ->
-        {:ok, maybe_decode_body(headers, body)}
+        decode_body(headers, body)
 
       {:ok, status, headers, body} ->
         reason = http_reason(status, params[:sid], params[:ain])
@@ -187,19 +187,20 @@ defmodule FritzApi.Client do
     URI.to_string(%URI{uri | query: query})
   end
 
-  defp maybe_decode_body(headers, body) do
-    cond do
-      decodable_body?(body) and decodable_content_type?(headers) -> XmlToMap.naive_map(body)
-      is_binary(body) -> String.trim_trailing(body, "\n")
-      true -> body
+  # `XmlToMap.naive_map/1` throws on malformed XML, which a captive portal or a
+  # truncated response can produce just as easily as a firmware quirk. Catch it
+  # so every response leaves this module as an ok/error tuple.
+  defp decode_body(headers, body) do
+    if body != "" and xml?(headers) do
+      {:ok, XmlToMap.naive_map(body)}
+    else
+      {:ok, String.trim_trailing(body, "\n")}
     end
+  catch
+    :throw, _reason -> {:error, %Error{reason: {:unexpected_response, body}}}
   end
 
-  defp decodable_body?(body) when is_binary(body) and body != "", do: true
-  defp decodable_body?(body) when is_list(body) and body != [], do: true
-  defp decodable_body?(_body), do: false
-
-  defp decodable_content_type?(headers) do
+  defp xml?(headers) do
     case List.keyfind(headers, "content-type", 0) do
       {_, "application/xml" <> _} -> true
       {_, "text/xml" <> _} -> true
