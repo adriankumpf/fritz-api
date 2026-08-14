@@ -12,7 +12,7 @@ defmodule FritzApi.Error do
   Why the request failed.
 
   Besides the reasons listed here, it can be any term returned by the HTTP
-  client, for example `%Mint.TransportError{reason: :timeout}`.
+  client, for example `%Finch.TransportError{reason: :timeout}`.
   """
   @type reason ::
           :session_expired

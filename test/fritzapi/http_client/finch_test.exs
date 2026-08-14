@@ -35,14 +35,14 @@ defmodule FritzApi.HTTPClient.FinchTest do
       Plug.Conn.resp(conn, 200, "ok")
     end)
 
-    assert {:error, %Mint.TransportError{reason: :timeout}} =
+    assert {:error, %{reason: :timeout}} =
              HTTPClient.Finch.get("http://localhost:#{bypass.port}/", receive_timeout: 0)
   end
 
   test "get/1 handles errors", %{bypass: bypass} do
     Bypass.down(bypass)
 
-    assert {:error, %Mint.TransportError{reason: :econnrefused}} =
+    assert {:error, %{reason: :econnrefused}} =
              HTTPClient.Finch.get("http://localhost:#{bypass.port}/", [])
   end
 end
