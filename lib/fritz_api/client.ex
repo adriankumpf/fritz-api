@@ -147,19 +147,7 @@ defmodule FritzApi.Client do
         {:ok, maybe_decode_body(headers, body)}
 
       {:ok, status, headers, body} ->
-        ain = params[:ain]
-        sid = params[:sid]
-
-        reason =
-          case status do
-            403 when is_binary(sid) -> :session_expired
-            403 -> :user_not_authorized
-            400 when is_binary(ain) -> :actor_not_found
-            400 -> :bad_request
-            500 -> :internal_error
-            _ -> :unknown
-          end
-
+        reason = http_reason(status, params[:sid], params[:ain])
         {:error, %Error{reason: reason, response: {status, headers, body}}}
 
       {:error, reason} ->
@@ -167,17 +155,21 @@ defmodule FritzApi.Client do
     end
   end
 
-  defp build_url(base_url, path, params) do
-    query =
-      case params do
-        [] -> nil
-        _ -> URI.encode_query(params)
-      end
+  # A status means different things depending on what the request was asking
+  # for: only a request that carries a session can have an expired one, and only
+  # one that names an actor can fail to find it. Login requests carry neither.
+  defp http_reason(403, session_id, _ain) when is_binary(session_id), do: :session_expired
+  defp http_reason(403, _session_id, _ain), do: :user_not_authorized
+  defp http_reason(400, _session_id, ain) when is_binary(ain), do: :actor_not_found
+  defp http_reason(400, _session_id, _ain), do: :bad_request
+  defp http_reason(500, _session_id, _ain), do: :internal_error
+  defp http_reason(_status, _session_id, _ain), do: :unknown
 
-    base_url
-    |> URI.merge(path)
-    |> Map.put(:query, query)
-    |> URI.to_string()
+  defp build_url(base_url, path, params) do
+    %URI{} = uri = URI.merge(base_url, path)
+    query = if params != [], do: URI.encode_query(params)
+
+    URI.to_string(%URI{uri | query: query})
   end
 
   defp maybe_decode_body(headers, body) do
