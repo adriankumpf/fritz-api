@@ -132,6 +132,17 @@ defmodule FritzApi.ClientTest do
       assert {:error, %Error{reason: :timeout}} = Client.execute_command(client, "foo")
     end
 
+    test "returns error instead of throwing on malformed XML", %{client: client} do
+      for body <- ["<devicelist><device", "not xml at all", "<a>&bad;</a>"] do
+        mock(fn _url, _query, _opts ->
+          {:ok, 200, [{"content-type", "text/xml"}], body}
+        end)
+
+        assert {:error, %Error{reason: {:unexpected_response, ^body}}} =
+                 Client.execute_command(client, "getdevicelistinfos")
+      end
+    end
+
     @logged_in true
     test "runs commands that FritzApi does not wrap", %{client: client} do
       mock(fn @command_url,
