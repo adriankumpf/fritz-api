@@ -16,7 +16,7 @@ Add `:fritz_api` and `:finch` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:fritz_api, "~> 3.0"},
+    {:fritz_api, "~> 3.1"},
     {:finch, "~> 0.16"}
   ]
 end
