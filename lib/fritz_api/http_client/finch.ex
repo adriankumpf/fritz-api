@@ -2,7 +2,7 @@ defmodule FritzApi.HTTPClient.Finch do
   @moduledoc """
   The built-in HTTP client, based on [finch](https://github.com/sneako/finch).
 
-  It client implements the `FritzApi.HTTPClient` behaviour.
+  It implements the `FritzApi.HTTPClient` behaviour.
 
   See `FritzApi` for the available configuration options and `FritzApi.HTTPClient` if you wish to
   use another HTTP client.
@@ -14,6 +14,16 @@ defmodule FritzApi.HTTPClient.Finch do
 
   @impl true
   def child_spec(pool_opts) do
+    # :finch is an optional dependency, so it is listed in this application's
+    # `applications` and OTP has already started it by the time we get here.
+    # Only its absence needs reporting.
+    unless Code.ensure_loaded?(Finch) do
+      raise """
+      #{inspect(__MODULE__)} requires :finch. Add it to your dependencies, or \
+      configure a different HTTP client via `config :fritz_api, :client`.
+      """
+    end
+
     Finch.child_spec(name: @finch_pool_name, pools: %{default: pool_opts})
   end
 
