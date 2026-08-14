@@ -223,6 +223,27 @@ defmodule FritzApi.CommandsTest do
     end
 
     @logged_in true
+    test "decodes values it does not recognise as nil", %{client: client} do
+      mock_devicelist("""
+      <devicelist version="1">
+        <device identifier="01234 0000123" id="notanint" functionbitmask="garbage">
+          <present>2</present>
+          <switch><state>7</state><mode>weird</mode></switch>
+          <newfangled>surprise</newfangled>
+        </device>
+      </devicelist>
+      """)
+
+      assert {:ok, [actor]} = FritzApi.get_device_list_infos(client)
+
+      assert actor.ain == "012340000123"
+      assert actor.id == nil
+      assert actor.functions == []
+      assert actor.present == nil
+      assert actor.switch == %Switch{devicelock: nil, lock: nil, mode: nil, state: nil}
+    end
+
+    @logged_in true
     test "returns an error if the response is not a devicelist", %{client: client} do
       mock_devicelist("<html><body>Internal Error</body></html>")
 
