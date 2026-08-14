@@ -14,20 +14,20 @@ defmodule FritzApi.HTTPClient do
   A client implementation based on `:hackney` could look like this:
 
       defmodule MyHTTPClient do
-        @behaviour LoggerTelegramBackend.HTTPClient
+        @behaviour FritzApi.HTTPClient
 
-        @hackney_pool_name :logger_telegram_backend_pool
+        @pool_name :my_http_client_pool
 
         @impl true
-        def child_spec(opts) do
-          :hackney_pool.child_spec(@hackney_pool_name, opts)
+        def child_spec(pool_opts) do
+          :hackney_pool.child_spec(@pool_name, pool_opts)
         end
 
         @impl true
-        def request(method, url, headers, body, opts) do
-          opts = Keyword.merge(opts, pool: @hackney_pool_name) ++ [:with_body]
+        def get(url, req_opts) do
+          opts = [:with_body, pool: @pool_name] ++ req_opts
 
-          case :hackney.request(method, url, headers, body, opts) do
+          case :hackney.get(url, [], "", opts) do
             {:ok, _status, _headers, _body} = result -> result
             {:error, _reason} = error -> error
           end
@@ -35,11 +35,7 @@ defmodule FritzApi.HTTPClient do
       end
 
   """
-
   @moduledoc since: "3.0.0"
-
-  @typedoc "HTTP request method."
-  @type method :: atom()
 
   @typedoc "HTTP request URL."
   @type url :: String.t()
@@ -47,13 +43,10 @@ defmodule FritzApi.HTTPClient do
   @typedoc "HTTP response status."
   @type status :: 100..599
 
-  @typedoc "HTTP request or response headers."
+  @typedoc "HTTP response headers."
   @type headers :: [{String.t(), String.t()}]
 
-  @typedoc "HTTP request query params."
-  @type params :: keyword()
-
-  @typedoc "HTTP request or response body."
+  @typedoc "HTTP response body."
   @type body :: binary()
 
   @typedoc "Options to configure the pool (set via `:client_pool_opts`)."
@@ -63,11 +56,13 @@ defmodule FritzApi.HTTPClient do
   @type req_opts :: Keyword.t()
 
   @doc """
-  Should return a **child specification** to start the HTTP client or `nil`.
+  Should return a **child specification** to start the HTTP client, a list of
+  them, or `nil` if the client needs no supervised process.
 
   For example, this can start a pool of HTTP connections dedicated to FritzApi.
   """
-  @callback child_spec(pool_opts) :: Supervisor.child_spec() | nil
+  @callback child_spec(pool_opts) ::
+              Supervisor.child_spec() | [Supervisor.child_spec()] | nil
 
   @doc """
   Should make an HTTP request to `t:url/0` with the given `t:req_opts/0`.
