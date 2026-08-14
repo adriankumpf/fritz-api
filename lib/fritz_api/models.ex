@@ -119,32 +119,31 @@ defmodule FritzApi.Actor do
     struct(__MODULE__, fields)
   end
 
+  # Bit positions of the device function classes within the `functionbitmask`
+  # attribute, as documented by AVM. Unlisted bits are reserved.
+  @functions [
+    {0, "HAN-FUN Gerät"},
+    {1, "AVM DECT Repeater"},
+    {2, "Licht/Lampe"},
+    {4, "Alarm-Sensor"},
+    {5, "AVM-Button"},
+    {6, "Heizkörperregler"},
+    {7, "Energie Messgerät"},
+    {8, "Temperatursensor"},
+    {9, "Schaltsteckdose"},
+    {11, "Mikrofon"},
+    {13, "HAN-FUN-Unit"},
+    {15, "an-/ausschaltbares Gerät/Steckdose/Lampe/Aktor"},
+    {16, "Gerät mit einstellbarem Dimm-, Höhen- bzw. Niveau-Level"},
+    {17, "Lampe mit einstellbarer Farbe/Farbtemperatur"}
+  ]
+
   defp parse_functions(bitmask) do
     import Bitwise
 
     n = String.to_integer(bitmask)
 
-    [i0, i1, i2, _i3, i4, i5, i6, i7, i8, i9, _i10, i11, _i12, i13, _i14, i15, i16, i17] =
-      for i <- 0..17, do: n >>> i &&& 1
-
-    [
-      {"HAN-FUN Gerät", i0},
-      {"Licht/Lampe", i2},
-      {"Alarm-Sensor", i4},
-      {"AVM- Button", i5},
-      {"Heizkörperregler", i6},
-      {"Energie Messgerät", i7},
-      {"Temperatursensor", i8},
-      {"Schaltsteckdose", i9},
-      {"0AVM DECT Repeater", i1},
-      {"Mikrofon", i11},
-      {"HAN-FUN-Unit", i13},
-      {"an-/ausschaltbares Gerät/Steckdose/Lampe/Aktor", i15},
-      {"Gerät mit einstellbarem Dimm-, Höhen- bzw. Niveau-Level", i16},
-      {"Lampe mit einstellbarer Farbe/Farbtemperatur", i17}
-    ]
-    |> Enum.filter(fn {_, i} -> i == 1 end)
-    |> Enum.map(fn {function, _} -> function end)
+    for {bit, function} <- @functions, (n >>> bit &&& 1) == 1, do: function
   end
 end
 
