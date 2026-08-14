@@ -1,4 +1,6 @@
 defmodule TestClient do
+  @moduledoc false
+
   @behaviour FritzApi.HTTPClient
 
   @impl true
@@ -8,6 +10,6 @@ defmodule TestClient do
   def get(url, opts), do: Process.get(:get_mock, &default_mock/2).(url, opts)
 
   defp default_mock(url, opts) do
-    raise "get(#{inspect(url)}, #{inspect(opts)} is not mocked! Call mock/1"
+    raise "get(#{inspect(url)}, #{inspect(opts)}) is not mocked! Call mock/1"
   end
 end
