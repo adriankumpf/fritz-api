@@ -58,10 +58,25 @@ defmodule FritzApi.ClientTest do
                Client.login(client, "admin", "äbc")
     end
 
+    test "fails instead of returning the unauthenticated SID", %{client: client} do
+      mock_login(fn nil -> session_info("0000000000000000") end)
+
+      assert {:error, %Error{reason: :login_failed}} = Client.login(client, "admin", "äbc")
+    end
+
     test "reports the status if the box fails the login request", %{client: client} do
       mock(fn @login_url, _query, _opts -> {:ok, 500, [], ""} end)
 
       assert {:error, %Error{reason: :internal_error}} = Client.login(client, "admin", "äbc")
+    end
+
+    test "reports a response that is not session info", %{client: client} do
+      mock(fn @login_url, _query, _opts ->
+        {:ok, 200, [{"content-type", "text/html"}], "<html>Please log in</html>"}
+      end)
+
+      assert {:error, %Error{reason: {:unexpected_response, _}}} =
+               Client.login(client, "admin", "äbc")
     end
   end
 
