@@ -31,20 +31,22 @@ iex> {:ok, client} = FritzApi.Client.new()
 iex> FritzApi.get_device_list_infos(client)
 {:ok, [%FritzApi.Actor{
   ain: "687690315761",
+  alert: nil,
+  functions: ["Energie Messgerät", "Temperatursensor", "Schaltsteckdose"],
   fwversion: "03.87",
   id: 21,
   manufacturer: "AVM",
   name: "FRITZ!DECT #1",
-  powermeter: %{energy: 0.475, power: 0.0},
+  powermeter: %FritzApi.Powermeter{energy: 0.475, power: 0.0, voltage: 231.17},
   present: true,
   productname: "FRITZ!DECT 200",
-  switch: %{
+  switch: %FritzApi.Switch{
     devicelock: false,
     lock: false,
     mode: :manual,
     state: false
   },
-  temperature: %{
+  temperature: %FritzApi.Temperature{
     celsius: 23.5,
     offset: 0.0
   }

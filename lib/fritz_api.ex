@@ -17,12 +17,14 @@ defmodule FritzApi do
 
   The main way to configure FritzApi is through the options passed to `FritzApi.Client.new/1`.
 
-  To customize the behaviour of the HTTP client used by FritzApi, you can configure FritzApi through
-  the application environment . For example, you can do this in `config/runtime.exs`:
+  To customize the behaviour of the HTTP client used by FritzApi, you can configure FritzApi
+  through the application environment. For example, you can do this in `config/runtime.exs`:
 
       # config/runtime.exs
       config :fritz_api,
-        # ...
+        client: FritzApi.HTTPClient.Finch,
+        client_pool_opts: [size: 10],
+        client_request_opts: [receive_timeout: 10_000]
 
   You can use these options:
 
@@ -76,7 +78,7 @@ defmodule FritzApi do
          functions: ["Energie Messgerät", "Temperatursensor",
            "Schaltsteckdose", "Mikrofon"],
          fwversion: "04.17",
-         id: "1",
+         id: 1,
          manufacturer: "AVM",
          name: "Aussensteckdose",
          powermeter: %FritzApi.Powermeter{
