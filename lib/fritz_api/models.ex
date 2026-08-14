@@ -92,36 +92,28 @@ defmodule FritzApi.Actor do
 
   @impl true
   def into(attrs) do
-    fields =
-      Enum.flat_map(attrs, fn
-        {"#content", content} when is_map(content) ->
-          Enum.map(content, fn
-            {"temperature", attrs} -> {:temperature, Temperature.into(attrs)}
-            {"powermeter", attrs} -> {:powermeter, Powermeter.into(attrs)}
-            {"switch", attrs} -> {:switch, Switch.into(attrs)}
-            {"alert", attrs} -> {:alert, Alert.into(attrs)}
-            {"present", value} -> {:present, to_boolean(value)}
-            {key, value} -> {to_atom(key), value}
-          end)
+    # XML attributes arrive prefixed with "-"; child elements are nested under
+    # "#content". Unknown keys survive `to_atom/1` as strings and `struct/2`
+    # drops them.
+    {content, attributes} = Map.pop(attrs, "#content")
 
-        {"-functionbitmask", bitmask} ->
-          [{:functions, parse_functions(bitmask)}]
-
-        {"-identifier", ain} ->
-          [{:ain, String.replace(ain, " ", "")}]
-
-        {"-id", id} ->
-          [{:id, to_integer(id)}]
-
-        {"-" <> key, value} ->
-          [{to_atom(key), value}]
-
-        {key, value} ->
-          [{to_atom(key), value}]
-      end)
-
-    struct(__MODULE__, fields)
+    struct(__MODULE__, Enum.map(attributes, &attribute/1) ++ children(content))
   end
+
+  defp attribute({"-functionbitmask", bitmask}), do: {:functions, parse_functions(bitmask)}
+  defp attribute({"-identifier", ain}), do: {:ain, String.replace(ain, " ", "")}
+  defp attribute({"-id", id}), do: {:id, to_integer(id)}
+  defp attribute({key, value}), do: {to_atom(String.trim_leading(key, "-")), value}
+
+  defp children(content) when is_map(content), do: Enum.map(content, &child/1)
+  defp children(_content), do: []
+
+  defp child({"temperature", attrs}), do: {:temperature, Temperature.into(attrs)}
+  defp child({"powermeter", attrs}), do: {:powermeter, Powermeter.into(attrs)}
+  defp child({"switch", attrs}), do: {:switch, Switch.into(attrs)}
+  defp child({"alert", attrs}), do: {:alert, Alert.into(attrs)}
+  defp child({"present", value}), do: {:present, to_boolean(value)}
+  defp child({key, value}), do: {to_atom(key), value}
 
   # Bit positions of the device function classes within the `functionbitmask`
   # attribute, as documented by AVM. Unlisted bits are reserved.
