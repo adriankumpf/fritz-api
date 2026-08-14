@@ -20,7 +20,7 @@ defmodule FritzApi.Mixfile do
           "CHANGELOG.md",
           "guides/howto/automatic_session_refresh.md"
         ],
-        source_ref: "#{@version}",
+        source_ref: @version,
         source_url: @source_url,
         main: "readme",
         skip_undefined_reference_warnings_on: ["CHANGELOG.md"],
@@ -32,7 +32,7 @@ defmodule FritzApi.Mixfile do
           "How-to's": ~r/guides\/howto\/.?/
         ]
       ],
-      xref: [exclude: [Finch]]
+      elixirc_options: [no_warn_undefined: [Finch]]
     ]
   end
 
@@ -54,7 +54,7 @@ defmodule FritzApi.Mixfile do
 
   defp package do
     [
-      files: ["lib", "LICENSE", "mix.exs", "README.md", "CHANGELOG.md"],
+      files: ["lib", "guides", "LICENSE", "mix.exs", "README.md", "CHANGELOG.md"],
       maintainers: ["Adrian Kumpf"],
       licenses: ["MIT"],
       links: %{
