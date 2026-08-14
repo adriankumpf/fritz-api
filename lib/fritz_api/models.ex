@@ -13,6 +13,10 @@ defmodule FritzApi.Model do
     end
   end
 
+  # Every helper below is total: the FritzBox leaves elements empty (`<lock />`,
+  # which decodes to an empty map), and is free to grow values we don't know
+  # yet. Both become `nil` rather than a crash mid-devicelist.
+
   def to_atom(str) do
     String.to_existing_atom(str)
   rescue
@@ -21,31 +25,28 @@ defmodule FritzApi.Model do
 
   def to_boolean("1"), do: true
   def to_boolean("0"), do: false
-  def to_boolean(nil), do: nil
-  def to_boolean(%{}), do: nil
+  def to_boolean(_value), do: nil
 
-  def to_integer(nil), do: nil
-  def to_integer(%{}), do: nil
-
-  def to_integer(str) do
+  def to_integer(str) when is_binary(str) do
     case Integer.parse(str) do
       {int, ""} -> int
       _ -> nil
     end
   end
 
+  def to_integer(_value), do: nil
+
   # The FritzBox reports fixed-point decimals as integers, e.g. "89418" for
   # 89.418 kWh. `scale` is the divisor, e.g. `1000`. It differs per element, so
   # don't assume it matches the same quantity elsewhere in the API.
-  def to_float(nil, _scale), do: nil
-  def to_float(%{}, _scale), do: nil
-
-  def to_float(str, scale) do
+  def to_float(str, scale) when is_binary(str) do
     case to_integer(str) do
       nil -> nil
       int -> int / scale
     end
   end
+
+  def to_float(_value, _scale), do: nil
 end
 
 defmodule FritzApi.Actor do
@@ -69,24 +70,24 @@ defmodule FritzApi.Actor do
 
   use FritzApi.Model
 
-  alias FritzApi.{Temperature, Powermeter, Switch, Alert}
+  alias FritzApi.{Alert, Powermeter, Switch, Temperature}
 
   defstruct ~w(ain alert functions fwversion id manufacturer name
                powermeter present productname switch temperature)a
 
   @type t :: %__MODULE__{
-          ain: String.t(),
-          alert: Alert.t(),
+          ain: String.t() | nil,
+          alert: Alert.t() | nil,
           functions: [String.t()],
-          fwversion: String.t(),
-          id: String.t(),
-          manufacturer: String.t(),
-          name: String.t(),
-          powermeter: Powermeter.t(),
-          present: boolean,
-          productname: String.t(),
-          switch: Switch.t(),
-          temperature: Temperature.t()
+          fwversion: String.t() | nil,
+          id: integer | nil,
+          manufacturer: String.t() | nil,
+          name: String.t() | nil,
+          powermeter: Powermeter.t() | nil,
+          present: boolean | nil,
+          productname: String.t() | nil,
+          switch: Switch.t() | nil,
+          temperature: Temperature.t() | nil
         }
 
   @impl true
@@ -113,6 +114,9 @@ defmodule FritzApi.Actor do
           [{:id, to_integer(id)}]
 
         {"-" <> key, value} ->
+          [{to_atom(key), value}]
+
+        {key, value} ->
           [{to_atom(key), value}]
       end)
 
@@ -141,9 +145,10 @@ defmodule FritzApi.Actor do
   defp parse_functions(bitmask) do
     import Bitwise
 
-    n = String.to_integer(bitmask)
-
-    for {bit, function} <- @functions, (n >>> bit &&& 1) == 1, do: function
+    case to_integer(bitmask) do
+      nil -> []
+      n -> for {bit, function} <- @functions, (n >>> bit &&& 1) == 1, do: function
+    end
   end
 end
 
@@ -161,15 +166,18 @@ defmodule FritzApi.Temperature do
   use FritzApi.Model
 
   @type t :: %__MODULE__{
-          celsius: float,
-          offset: float
+          celsius: float | nil,
+          offset: float | nil
         }
 
   defstruct [:celsius, :offset]
 
   @impl true
-  def into(%{"celsius" => celsius, "offset" => offset}) do
-    %__MODULE__{celsius: to_float(celsius, 10), offset: to_float(offset, 10)}
+  def into(attrs) do
+    %__MODULE__{
+      celsius: to_float(attrs["celsius"], 10),
+      offset: to_float(attrs["offset"], 10)
+    }
   end
 end
 
@@ -188,9 +196,9 @@ defmodule FritzApi.Powermeter do
   use FritzApi.Model
 
   @type t :: %__MODULE__{
-          energy: float,
-          power: float,
-          voltage: float
+          energy: float | nil,
+          power: float | nil,
+          voltage: float | nil
         }
 
   defstruct [:energy, :power, :voltage]
@@ -223,10 +231,10 @@ defmodule FritzApi.Switch do
   use FritzApi.Model
 
   @type t :: %__MODULE__{
-          mode: :manual | :auto,
-          devicelock: boolean,
-          state: boolean,
-          lock: boolean
+          devicelock: boolean | nil,
+          state: boolean | nil,
+          lock: boolean | nil,
+          mode: :manual | :auto | nil
         }
 
   defstruct [:devicelock, :state, :lock, :mode]
@@ -264,15 +272,17 @@ defmodule FritzApi.Alert do
   defstruct [:state, :last_alert_change]
 
   @impl true
-  def into(%{"state" => state, "lastalertchgtimestamp" => ts}) do
-    %__MODULE__{state: to_boolean(state), last_alert_change: to_datetime(ts)}
+  def into(attrs) do
+    %__MODULE__{
+      state: to_boolean(attrs["state"]),
+      last_alert_change: to_datetime(attrs["lastalertchgtimestamp"])
+    }
   end
 
   defp to_datetime(ts) do
-    with true <- is_binary(ts),
-         {seconds, ""} <- Integer.parse(ts),
-         {:ok, dt} <- DateTime.from_unix(seconds, :second) do
-      dt
+    with seconds when is_integer(seconds) <- to_integer(ts),
+         {:ok, datetime} <- DateTime.from_unix(seconds) do
+      datetime
     else
       _ -> nil
     end
