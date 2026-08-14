@@ -57,6 +57,12 @@ defmodule FritzApi.ClientTest do
       assert {:error, %Error{reason: {:login_failed, [block_time: 60]}}} =
                Client.login(client, "admin", "äbc")
     end
+
+    test "reports the status if the box fails the login request", %{client: client} do
+      mock(fn @login_url, _query, _opts -> {:ok, 500, [], ""} end)
+
+      assert {:error, %Error{reason: :internal_error}} = Client.login(client, "admin", "äbc")
+    end
   end
 
   describe "execute_command/3" do
