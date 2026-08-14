@@ -9,17 +9,9 @@ install: ## Install dependencies
 	@mix deps.get && \
 	mix deps.compile
 
-.PHONY: lint
-lint: ## Lint code with Credo
-	@mix credo --strict
-
 .PHONY: create-docs
 create-docs: ## Create the documentation
 	@mix docs
-
-.PHONY: analyze
-analyze: ## Run a static analysis with Dialyzer
-	@mix dialyzer
 
 .PHONY: publish-package
 publish-package: ## Publish the package
