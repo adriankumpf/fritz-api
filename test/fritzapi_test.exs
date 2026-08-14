@@ -1,6 +1,8 @@
 defmodule FritzApiTest do
   use FritzApi.Case, async: false
 
+  import ExUnit.CaptureLog
+
   defmodule InspectPoolOptsClient do
     @behaviour FritzApi.HTTPClient
 
@@ -14,25 +16,11 @@ defmodule FritzApiTest do
     def get(_url, _opts), do: raise("unimplemented!")
   end
 
-  defmodule NoChildSpecTestClient do
-    @behaviour FritzApi.HTTPClient
-
-    @impl true
-    def child_spec(_pool_opts), do: nil
-
-    @impl true
-    def get(_url, _opts), do: raise("unimplemented!")
-  end
-
   setup_all do
-    # Temporarily disable logging to suppress `Application fritz_api exited: :stopped` message
-    with_log_level(:error, fn ->
-      Application.stop(:fritz_api)
-    end)
+    # Capture the `Application fritz_api exited: :stopped` report
+    capture_log(fn -> Application.stop(:fritz_api) end)
 
-    on_exit(fn ->
-      Application.start(:fritz_api)
-    end)
+    on_exit(fn -> Application.start(:fritz_api) end)
 
     :ok
   end
@@ -46,12 +34,12 @@ defmodule FritzApiTest do
       type: :supervisor
     })
 
-    [pid: self()]
+    :ok
   end
 
-  @config [client: NoChildSpecTestClient]
+  @config [client: TestClient]
   test "allows to return nil from child_spec/1" do
-    refute_receive _
+    assert Supervisor.which_children(FritzApi.Supervisor) == []
   end
 
   @config [client: InspectPoolOptsClient, client_pool_opts: [pool_max_idle_time: 6000]]
@@ -60,13 +48,13 @@ defmodule FritzApiTest do
   end
 
   @config [client: TestClient, client_request_opts: [receive_timeout: 11_000]]
-  test "passes the :client_request_opts to request/5", %{client: client, pid: pid} do
-    mock(fn _url, _params, opts ->
-      send(pid, {:req_opts, opts})
-      {:ok, 200, [], ""}
+  test "passes the :client_request_opts to get/2", %{client: client} do
+    mock(fn _url, _query, opts ->
+      send(self(), {:req_opts, opts})
+      {:ok, 200, [], "Smart Plug"}
     end)
 
-    {:ok, _} = FritzApi.get_switch_name(client, "$ain")
+    assert {:ok, "Smart Plug"} = FritzApi.get_switch_name(client, "$ain")
 
     assert_receive {:req_opts, [receive_timeout: 11_000]}
   end
