@@ -37,6 +37,10 @@ defmodule FritzApi.HTTPClient.FinchTest do
 
     assert {:error, %{reason: :timeout}} =
              HTTPClient.Finch.get("http://localhost:#{bypass.port}/", receive_timeout: 0)
+
+    # Finch closes the connection on timeout, so Cowboy may kill the handler
+    # mid-sleep. Bypass would re-raise that :shutdown exit in on_exit.
+    Bypass.pass(bypass)
   end
 
   test "get/1 handles errors", %{bypass: bypass} do
